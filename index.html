@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMW Kyalami RaceDay — Book. Race. Track.</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="flag-strip"></div>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="brand"><span class="dot"></span> BMW <b>Kyalami</b> RaceDay</a>
+    <nav class="links">
+      <a href="index.html" class="active">Home</a>
+      <a href="index.html#book">Book</a>
+      <a href="index.html#dashboard">Dashboard</a>
+      <a href="design.html">API &amp; DB Design</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="speed-lines"></div>
+    <span class="kicker">BMW Kyalami Racetrack</span>
+    <h1>Skip the queue.<br>Hit the apex.</h1>
+    <p class="lead">Book track days and race events online, register as a driver, and chase the
+      leaderboard with live lap-time analytics — built to cut race-day congestion and put Kyalami at your fingertips.</p>
+    <div class="cta">
+      <a href="#book" class="btn primary">🏁 Book a Race Event</a>
+      <a href="design.html" class="btn ghost">View System Design →</a>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <section>
+    <div class="stats">
+      <div class="stat"><div class="num">12k+</div><div class="lbl">Drivers registered</div></div>
+      <div class="stat"><div class="num">−40%</div><div class="lbl">Race-day queue time</div></div>
+      <div class="stat"><div class="num">98</div><div class="lbl">Events / season</div></div>
+      <div class="stat"><div class="num">24/7</div><div class="lbl">Online booking</div></div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section>
+    <span class="kicker">Why RaceDay</span>
+    <h2>Everything trackside, online</h2>
+    <p class="lead">Solving the problems that matter — manual booking, long queues, no real-time visibility.</p>
+    <div class="grid cols-3" style="margin-top:28px;">
+      <div class="card"><div class="ico">🎟️</div><h3>Instant Booking</h3><p>Reserve track sessions and event slots in real time — no phone calls, no paper, no double-bookings.</p></div>
+      <div class="card"><div class="ico">⏱️</div><h3>Live Lap Times</h3><p>Your sessions, sectors and personal bests tracked automatically and ranked on the leaderboard.</p></div>
+      <div class="card"><div class="ico">📊</div><h3>Driver Dashboard</h3><p>One view for upcoming events, booking history, and performance insights over the season.</p></div>
+      <div class="card"><div class="ico">🔔</div><h3>Smart Alerts</h3><p>Confirmations, reminders and weather/schedule changes pushed straight to you.</p></div>
+      <div class="card"><div class="ico">🛡️</div><h3>Secure Payments</h3><p>Vetted payment providers, tokenised cards — no card data stored on our servers.</p></div>
+      <div class="card"><div class="ico">⚙️</div><h3>Admin Control</h3><p>Event organisers manage capacity, pricing and schedules from a single console.</p></div>
+    </div>
+  </section>
+
+  <!-- FRONTEND DESIGN: BOOKING + LOGIN MOCKUPS -->
+  <section id="book">
+    <span class="kicker">Front End Design</span>
+    <h2>Booking &amp; registration screens</h2>
+    <p class="lead">The user-interface layer — booking screens, login/registration, and dashboards.</p>
+
+    <div class="grid cols-2" style="margin-top:28px; align-items:start;">
+      <!-- Booking screen -->
+      <div class="screen">
+        <div class="bar"><span class="b"></span><span class="b"></span><span class="b"></span><span class="url">kyalami.raceday.co.za/book</span></div>
+        <div class="body">
+          <h3 style="margin-bottom:16px;">Book a Race Event</h3>
+          <div class="field"><label>Event</label>
+            <select><option>Kyalami Track Day — 28 Jun 2026</option><option>BMW M Festival — 12 Jul 2026</option><option>Endurance Sprint — 02 Aug 2026</option></select>
+          </div>
+          <div class="field"><label>Session</label>
+            <select><option>Morning (08:00–11:00)</option><option>Afternoon (13:00–16:00)</option></select>
+          </div>
+          <div class="field"><label>Car / Class</label>
+            <select><option>BMW M2 — Club</option><option>BMW M4 — GT</option><option>Bring your own</option></select>
+          </div>
+          <div class="field"><label>Driver licence #</label><input value="KYL-0098-22" /></div>
+          <a href="#" class="btn primary" style="width:100%; justify-content:center;" onclick="return book(event)">Confirm Booking — R1 850</a>
+          <p id="bookMsg" style="color:var(--green); font-size:.85rem; margin-top:12px; display:none;">✅ Booking confirmed! Check your dashboard.</p>
+        </div>
+      </div>
+
+      <!-- Available events -->
+      <div class="screen">
+        <div class="bar"><span class="b"></span><span class="b"></span><span class="b"></span><span class="url">kyalami.raceday.co.za/events</span></div>
+        <div class="body">
+          <h3 style="margin-bottom:16px;">Upcoming Events</h3>
+          <div class="event-row"><div><b>Kyalami Track Day</b><div class="meta">28 Jun 2026 · 40 slots</div></div><span class="pill open">Open</span></div>
+          <div class="event-row"><div><b>BMW M Festival</b><div class="meta">12 Jul 2026 · 6 slots left</div></div><span class="pill few">Few left</span></div>
+          <div class="event-row"><div><b>Endurance Sprint</b><div class="meta">02 Aug 2026 · Sold out</div></div><span class="pill full">Full</span></div>
+          <div class="event-row"><div><b>Night Race Series</b><div class="meta">23 Aug 2026 · 28 slots</div></div><span class="pill open">Open</span></div>
+          <div class="event-row"><div><b>Ladies Track Experience</b><div class="meta">06 Sep 2026 · 15 slots</div></div><span class="pill open">Open</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD / LEADERBOARD -->
+  <section id="dashboard">
+    <span class="kicker">Dashboards</span>
+    <h2>Lap-time leaderboard</h2>
+    <p class="lead">Live performance tracking — the data layer surfacing confirmed lap-time results.</p>
+    <div class="screen" style="margin-top:28px;">
+      <div class="bar"><span class="b"></span><span class="b"></span><span class="b"></span><span class="url">kyalami.raceday.co.za/dashboard/leaderboard</span></div>
+      <div class="body" style="padding:0;">
+        <table class="lb">
+          <thead><tr><th>Pos</th><th>Driver</th><th>Car</th><th>Best Lap</th><th>Top Speed</th><th>Sessions</th></tr></thead>
+          <tbody>
+            <tr class="p1"><td class="pos">1</td><td>T. van der Merwe</td><td>BMW M4 GT</td><td class="time">1:42.318</td><td>271 km/h</td><td>14</td></tr>
+            <tr><td class="pos">2</td><td>L. Naidoo</td><td>BMW M2 Club</td><td class="time">1:43.902</td><td>264 km/h</td><td>11</td></tr>
+            <tr><td class="pos">3</td><td>S. Botha</td><td>BMW M4 GT</td><td class="time">1:44.115</td><td>268 km/h</td><td>9</td></tr>
+            <tr><td class="pos">4</td><td>A. Jaganath</td><td>BMW M2 Club</td><td class="time">1:45.760</td><td>259 km/h</td><td>7</td></tr>
+            <tr><td class="pos">5</td><td>R. Khumalo</td><td>BMW M3</td><td class="time">1:46.044</td><td>261 km/h</td><td>12</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="flag-mini"></div>
+  <p><b style="color:var(--text)">BMW Kyalami RaceDay</b> — SDLC Training · Exercise 4 (Phase 3: Design)</p>
+  <p style="margin-top:6px;">Frontend → API → Database · 3-tier architecture · <a href="design.html" style="color:var(--cyan);text-decoration:none;">See the design →</a></p>
+</footer>
+
+<script>
+function book(e){ e.preventDefault(); document.getElementById('bookMsg').style.display='block'; }
+</script>
+</body>
+</html>

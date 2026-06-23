@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMW Kyalami RaceDay — API &amp; DB Design</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="flag-strip"></div>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="brand"><span class="dot"></span> BMW <b>Kyalami</b> RaceDay</a>
+    <nav class="links">
+      <a href="index.html">Home</a>
+      <a href="index.html#book">Book</a>
+      <a href="index.html#dashboard">Dashboard</a>
+      <a href="design.html" class="active">API &amp; DB Design</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero" style="padding:46px 50px;">
+    <div class="speed-lines"></div>
+    <span class="kicker">Phase 3 · Design Blueprint</span>
+    <h1 style="font-size:clamp(1.9rem,4.5vw,3rem);">API &amp; Database Design</h1>
+    <p class="lead">The application logic layer and the data layer behind RaceDay — the "brain" that validates
+      requests and applies business rules, and the store that holds every user, booking, event and lap time.</p>
+  </div>
+
+  <!-- 3-TIER FLOW -->
+  <section>
+    <span class="kicker">Architecture</span>
+    <h2>Standard 3-tier system flow</h2>
+    <div class="flow" style="margin-top:26px;">
+      <div class="node fe"><div class="t">🖥️ Frontend</div><p style="color:var(--muted);font-size:.85rem;margin-top:8px;">Booking screens, login, dashboards. Sends requests, renders responses.</p></div>
+      <div class="arrow">→</div>
+      <div class="node api"><div class="t">⚙️ API</div><p style="color:var(--muted);font-size:.85rem;margin-top:8px;">Validates data, applies rules ("Is this event still available?"), connects FE to DB.</p></div>
+      <div class="arrow">→</div>
+      <div class="node db"><div class="t">🗄️ Database</div><p style="color:var(--muted);font-size:.85rem;margin-top:8px;">Stores users, bookings, events, lap-time results.</p></div>
+    </div>
+    <div class="note" style="margin-top:22px;">
+      <b>Example flow:</b> Driver clicks <i>"Book Race Event"</i> → API checks event capacity &amp; payment →
+      DB writes a confirmed booking record → leaderboard reads lap times back to the dashboard.
+    </div>
+  </section>
+
+  <!-- API DESIGN -->
+  <section>
+    <span class="kicker">Application Layer</span>
+    <h2>REST API Design</h2>
+    <p class="lead">Base URL <code style="color:var(--cyan)">https://api.kyalami-raceday.co.za/v1</code> · JSON · Bearer (JWT) auth.</p>
+
+    <div class="tabs" style="margin-top:24px;">
+      <button class="tab active" data-tab="auth">Auth</button>
+      <button class="tab" data-tab="events">Events</button>
+      <button class="tab" data-tab="bookings">Bookings</button>
+      <button class="tab" data-tab="laps">Lap Times</button>
+    </div>
+
+    <div class="tab-panel active" id="auth">
+      <div class="endpoint"><div class="verb post">POST</div><div class="path"><code>/auth/register</code><div class="desc">Register a new driver account</div></div></div>
+      <div class="endpoint"><div class="verb post">POST</div><div class="path"><code>/auth/login</code><div class="desc">Authenticate, returns a JWT access token</div></div></div>
+      <div class="endpoint"><div class="verb get">GET</div><div class="path"><code>/auth/me</code><div class="desc">Get the current driver profile</div></div></div>
+    </div>
+
+    <div class="tab-panel" id="events">
+      <div class="endpoint"><div class="verb get">GET</div><div class="path"><code>/events</code><div class="desc">List upcoming events (filter: ?status=open)</div></div></div>
+      <div class="endpoint"><div class="verb get">GET</div><div class="path"><code>/events/{id}</code><div class="desc">Event detail + remaining capacity</div></div></div>
+      <div class="endpoint"><div class="verb post">POST</div><div class="path"><code>/events</code><div class="desc">Create an event (admin / organiser only)</div></div></div>
+      <div class="endpoint"><div class="verb put">PUT</div><div class="path"><code>/events/{id}</code><div class="desc">Update schedule, pricing or capacity</div></div></div>
+    </div>
+
+    <div class="tab-panel" id="bookings">
+      <div class="endpoint"><div class="verb post">POST</div><div class="path"><code>/bookings</code><div class="desc">Create a booking (validates capacity + payment)</div></div></div>
+      <div class="endpoint"><div class="verb get">GET</div><div class="path"><code>/bookings</code><div class="desc">List the current driver's bookings</div></div></div>
+      <div class="endpoint"><div class="verb get">GET</div><div class="path"><code>/bookings/{id}</code><div class="desc">Single booking with status &amp; payment</div></div></div>
+      <div class="endpoint"><div class="verb del">DEL</div><div class="path"><code>/bookings/{id}</code><div class="desc">Cancel a booking, free the slot</div></div></div>
+    </div>
+
+    <div class="tab-panel" id="laps">
+      <div class="endpoint"><div class="verb get">GET</div><div class="path"><code>/events/{id}/leaderboard</code><div class="desc">Ranked lap times for an event</div></div></div>
+      <div class="endpoint"><div class="verb get">GET</div><div class="path"><code>/drivers/{id}/laptimes</code><div class="desc">A driver's personal lap history</div></div></div>
+      <div class="endpoint"><div class="verb post">POST</div><div class="path"><code>/laptimes</code><div class="desc">Record a lap time (timing system → API)</div></div></div>
+    </div>
+
+    <h3 style="margin:30px 0 12px;">Example: <code style="color:var(--cyan)">POST /bookings</code></h3>
+    <div class="grid cols-2" style="align-items:start;">
+      <div>
+        <p style="color:var(--muted);font-size:.85rem;margin-bottom:8px;">Request</p>
+<pre class="code"><span class="c">// validates: event open? capacity left? payment ok?</span>
+{
+  <span class="k">"event_id"</span>: <span class="n">42</span>,
+  <span class="k">"session_id"</span>: <span class="n">3</span>,
+  <span class="k">"car_class"</span>: <span class="s">"BMW M2 Club"</span>,
+  <span class="k">"licence_no"</span>: <span class="s">"KYL-0098-22"</span>,
+  <span class="k">"payment_token"</span>: <span class="s">"tok_3xQ9..."</span>
+}</pre>
+      </div>
+      <div>
+        <p style="color:var(--muted);font-size:.85rem;margin-bottom:8px;">Response · <span style="color:var(--green)">201 Created</span></p>
+<pre class="code">{
+  <span class="k">"booking_id"</span>: <span class="n">10293</span>,
+  <span class="k">"status"</span>: <span class="s">"CONFIRMED"</span>,
+  <span class="k">"event"</span>: <span class="s">"Kyalami Track Day"</span>,
+  <span class="k">"session"</span>: <span class="s">"Morning 08:00"</span>,
+  <span class="k">"amount"</span>: <span class="n">1850.00</span>,
+  <span class="k">"currency"</span>: <span class="s">"ZAR"</span>,
+  <span class="k">"created_at"</span>: <span class="s">"2026-06-17T09:14:02Z"</span>
+}</pre>
+      </div>
+    </div>
+    <div class="note" style="margin-top:18px;">
+      <b>Business rules enforced by the API:</b> no double-booking the same session · reject if event is full ·
+      payment must clear before <code>CONFIRMED</code> · only admins create/edit events.
+    </div>
+  </section>
+
+  <!-- DB DESIGN -->
+  <section>
+    <span class="kicker">Data Layer</span>
+    <h2>Database Schema (ER Design)</h2>
+    <p class="lead">Relational model — one driver has many bookings; each event has many sessions and many lap times.</p>
+
+    <div class="er-grid" style="margin-top:26px;">
+      <div class="er-table">
+        <div class="h">drivers</div>
+        <div class="row pk"><span class="col">driver_id <span class="badge pk">PK</span></span><span class="type">BIGINT</span></div>
+        <div class="row"><span class="col">full_name</span><span class="type">VARCHAR</span></div>
+        <div class="row"><span class="col">email</span><span class="type">VARCHAR ·UQ</span></div>
+        <div class="row"><span class="col">password_hash</span><span class="type">VARCHAR</span></div>
+        <div class="row"><span class="col">licence_no</span><span class="type">VARCHAR</span></div>
+        <div class="row"><span class="col">role</span><span class="type">ENUM</span></div>
+        <div class="row"><span class="col">created_at</span><span class="type">TIMESTAMP</span></div>
+      </div>
+
+      <div class="er-table">
+        <div class="h">events</div>
+        <div class="row pk"><span class="col">event_id <span class="badge pk">PK</span></span><span class="type">BIGINT</span></div>
+        <div class="row"><span class="col">name</span><span class="type">VARCHAR</span></div>
+        <div class="row"><span class="col">event_date</span><span class="type">DATE</span></div>
+        <div class="row"><span class="col">capacity</span><span class="type">INT</span></div>
+        <div class="row"><span class="col">price_zar</span><span class="type">DECIMAL</span></div>
+        <div class="row"><span class="col">status</span><span class="type">ENUM</span></div>
+      </div>
+
+      <div class="er-table">
+        <div class="h">sessions</div>
+        <div class="row pk"><span class="col">session_id <span class="badge pk">PK</span></span><span class="type">BIGINT</span></div>
+        <div class="row fk"><span class="col">event_id <span class="badge fk">FK</span></span><span class="type">→ events</span></div>
+        <div class="row"><span class="col">start_time</span><span class="type">TIME</span></div>
+        <div class="row"><span class="col">slots_total</span><span class="type">INT</span></div>
+        <div class="row"><span class="col">slots_taken</span><span class="type">INT</span></div>
+      </div>
+
+      <div class="er-table">
+        <div class="h">bookings</div>
+        <div class="row pk"><span class="col">booking_id <span class="badge pk">PK</span></span><span class="type">BIGINT</span></div>
+        <div class="row fk"><span class="col">driver_id <span class="badge fk">FK</span></span><span class="type">→ drivers</span></div>
+        <div class="row fk"><span class="col">session_id <span class="badge fk">FK</span></span><span class="type">→ sessions</span></div>
+        <div class="row"><span class="col">car_class</span><span class="type">VARCHAR</span></div>
+        <div class="row"><span class="col">status</span><span class="type">ENUM</span></div>
+        <div class="row"><span class="col">amount_zar</span><span class="type">DECIMAL</span></div>
+        <div class="row"><span class="col">created_at</span><span class="type">TIMESTAMP</span></div>
+      </div>
+
+      <div class="er-table">
+        <div class="h">payments</div>
+        <div class="row pk"><span class="col">payment_id <span class="badge pk">PK</span></span><span class="type">BIGINT</span></div>
+        <div class="row fk"><span class="col">booking_id <span class="badge fk">FK</span></span><span class="type">→ bookings</span></div>
+        <div class="row"><span class="col">provider</span><span class="type">VARCHAR</span></div>
+        <div class="row"><span class="col">token_ref</span><span class="type">VARCHAR</span></div>
+        <div class="row"><span class="col">status</span><span class="type">ENUM</span></div>
+      </div>
+
+      <div class="er-table">
+        <div class="h">lap_times</div>
+        <div class="row pk"><span class="col">lap_id <span class="badge pk">PK</span></span><span class="type">BIGINT</span></div>
+        <div class="row fk"><span class="col">driver_id <span class="badge fk">FK</span></span><span class="type">→ drivers</span></div>
+        <div class="row fk"><span class="col">event_id <span class="badge fk">FK</span></span><span class="type">→ events</span></div>
+        <div class="row"><span class="col">lap_seconds</span><span class="type">DECIMAL</span></div>
+        <div class="row"><span class="col">top_speed</span><span class="type">INT</span></div>
+        <div class="row"><span class="col">recorded_at</span><span class="type">TIMESTAMP</span></div>
+      </div>
+    </div>
+
+    <h3 style="margin:32px 0 12px;">Relationships</h3>
+    <div class="grid cols-2">
+      <div class="card"><p style="color:var(--text)"><b>drivers</b> 1 — ∞ <b>bookings</b></p><p>A driver makes many bookings over a season.</p></div>
+      <div class="card"><p style="color:var(--text)"><b>events</b> 1 — ∞ <b>sessions</b></p><p>Each event splits into morning/afternoon sessions.</p></div>
+      <div class="card"><p style="color:var(--text)"><b>sessions</b> 1 — ∞ <b>bookings</b></p><p>Slots per session are capped by <code>slots_total</code>.</p></div>
+      <div class="card"><p style="color:var(--text)"><b>bookings</b> 1 — 1 <b>payments</b></p><p>Booking confirms only once payment clears.</p></div>
+    </div>
+
+    <h3 style="margin:32px 0 12px;">Sample DDL</h3>
+<pre class="code"><span class="k">CREATE TABLE</span> bookings (
+  booking_id   <span class="k">BIGSERIAL</span> <span class="k">PRIMARY KEY</span>,
+  driver_id    <span class="k">BIGINT</span> <span class="k">REFERENCES</span> drivers(driver_id),
+  session_id   <span class="k">BIGINT</span> <span class="k">REFERENCES</span> sessions(session_id),
+  car_class    <span class="k">VARCHAR</span>(<span class="n">50</span>),
+  status       <span class="k">VARCHAR</span>(<span class="n">20</span>) <span class="k">DEFAULT</span> <span class="s">'PENDING'</span>,
+  amount_zar   <span class="k">DECIMAL</span>(<span class="n">10</span>,<span class="n">2</span>),
+  created_at   <span class="k">TIMESTAMP</span> <span class="k">DEFAULT</span> now(),
+  <span class="k">UNIQUE</span> (driver_id, session_id)   <span class="c">-- no double-booking</span>
+);</pre>
+  </section>
+</main>
+
+<footer>
+  <div class="flag-mini"></div>
+  <p><b style="color:var(--text)">BMW Kyalami RaceDay</b> — SDLC Training · Exercise 4 (Phase 3: Design)</p>
+  <p style="margin-top:6px;">Front End · API · DB Designs · <a href="index.html" style="color:var(--cyan);text-decoration:none;">← Back to the frontend</a></p>
+</footer>
+
+<script>
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById(t.dataset.tab).classList.add('active');
+}));
+</script>
+</body>
+</html>
