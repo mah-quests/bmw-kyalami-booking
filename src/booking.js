@@ -6,7 +6,8 @@
 // Simulated internal database array tracking existing track reservations
 const databaseRegistry = [
     { id: 1, driver: "Thato Mohono", timeSlot: "10:00", car: "BMW M4 Competition" },
-    { id: 2, driver: "Yongama Sobambela", timeSlot: "11:30", car: "BMW M5 CS" }
+    { id: 2, driver: "Yongama Sobambela", timeSlot: "11:30", car: "BMW M5 CS" },
+	{id: 3, driver: "Phillip Mosiane", timeSlot: "11:15", car: "BMW i4 M50" }
 ];
 
 /**
@@ -67,6 +68,7 @@ module.exports = {
     databaseRegistry
 };
 
+// Implement race time slot conflict detectiion validation logic.
 export const validateRaceSlot = (requestedSlot, existingBookings) => {
     if (!requestedSlot) {
         throw new Error("Critical Parameter Missing: Invalid track query.");
@@ -74,3 +76,7 @@ export const validateRaceSlot = (requestedSlot, existingBookings) => {
     const isConflict = existingBookings.includes(requestedSlot);
     return !isConflict; // Returns true if the track time slot is wide open and safe
 };
+
+//Assumption: The length of each session on the track is 30 minutes. The verification would then have to be adjusted to represent this or the options for making a booking would have to change. 
+// The best way to approach this would be to have a time selection that is every 30 minutes
+// This and also only give the user the option to select a time slot that is available.
