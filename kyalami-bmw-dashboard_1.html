@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kyalami BMW · Driver Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0A0A0C; --surface: #131316; --surface2: #1A1A1F; --surface3: #222228;
+  --border: #2A2A32; --border2: #3A3A44;
+  --bmw-blue: #0066CC; --bmw-blue-bright: #0A84FF; --bmw-yellow: #FFD60A;
+  --white: #F5F5F7; --muted: #6E6E78; --alert: #FF3B30; --ok: #34C759; --warn: #FF9F0A;
+  --purple: #BF5AF2;
+  --font-d: 'Rajdhani', sans-serif; --font-m: 'JetBrains Mono', monospace;
+}
+html, body { height: 100%; background: var(--bg); color: var(--white); font-family: var(--font-d); overflow: hidden; user-select: none; }
+
+/* ═══ LAYOUT ═══ */
+.dashboard { display: grid; grid-template-rows: 52px 1fr 96px; grid-template-columns: 224px 1fr 224px; height: 100vh; gap: 1px; background: var(--border); }
+
+/* ═══ HEADER ═══ */
+.header { grid-column: 1/-1; background: var(--surface); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--border); gap: 12px; }
+.header-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.bmw-roundel { width: 30px; height: 30px; border-radius: 50%; background: conic-gradient(#fff 0deg 90deg, #0066cc 90deg 180deg, #fff 180deg 270deg, #0066cc 270deg 360deg); border: 2px solid var(--border2); flex-shrink: 0; }
+.brand-text { font-size: 15px; font-weight: 700; letter-spacing: 0.1em; }
+.brand-sub { font-size: 9px; font-weight: 500; letter-spacing: 0.22em; color: var(--muted); text-transform: uppercase; }
+.header-center { display: flex; align-items: center; gap: 16px; flex: 1; justify-content: center; }
+.session-badge { font-family: var(--font-m); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: var(--bmw-yellow); background: rgba(255,214,10,0.1); border: 1px solid rgba(255,214,10,0.25); padding: 3px 9px; border-radius: 3px; white-space: nowrap; }
+.clock-display { font-family: var(--font-m); font-size: 17px; font-weight: 700; letter-spacing: 0.05em; }
+.header-controls { display: flex; gap: 6px; align-items: center; }
+.hbtn { background: var(--surface2); border: 1px solid var(--border2); color: var(--white); font-family: var(--font-d); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; padding: 5px 12px; border-radius: 3px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.hbtn:hover { background: var(--surface3); border-color: var(--bmw-blue); color: var(--bmw-blue-bright); }
+.hbtn.primary { background: rgba(10,132,255,0.15); border-color: var(--bmw-blue); color: var(--bmw-blue-bright); }
+.hbtn.primary:hover { background: rgba(10,132,255,0.28); }
+.hbtn.active { background: rgba(52,199,89,0.15); border-color: var(--ok); color: var(--ok); }
+.hbtn.booking { background: rgba(255,214,10,0.12); border-color: rgba(255,214,10,0.4); color: var(--bmw-yellow); }
+.hbtn.booking:hover { background: rgba(255,214,10,0.22); }
+.status-live { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 7px var(--ok); animation: pdot 1.5s ease-in-out infinite; }
+@keyframes pdot { 0%,100%{opacity:1}50%{opacity:.35} }
+.status-dot.paused { background: var(--warn); box-shadow: 0 0 7px var(--warn); animation: none; }
+.status-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ok); }
+.status-label.paused { color: var(--warn); }
+
+/* ═══ PANELS ═══ */
+.panel-left, .panel-right { background: var(--surface); display: flex; flex-direction: column; gap: 1px; overflow: hidden; }
+.widget { background: var(--surface2); padding: 12px 14px; flex: 1; min-height: 0; }
+.wlabel { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+
+/* Position */
+.pos-row { display: flex; gap: 10px; align-items: flex-end; }
+.pos-block { text-align: center; }
+.pos-num { font-family: var(--font-m); font-size: 38px; font-weight: 700; line-height: 1; }
+.pos-num.current { color: var(--bmw-blue-bright); }
+.pos-gap { font-family: var(--font-m); font-size: 18px; font-weight: 700; color: var(--muted); }
+.pos-sub { font-size: 9px; letter-spacing: 0.12em; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+
+/* Gear */
+.gear-display { font-family: var(--font-m); font-size: 66px; font-weight: 700; color: var(--bmw-blue-bright); text-align: center; line-height: 1; text-shadow: 0 0 36px rgba(10,132,255,.5); }
+
+/* Flags */
+.flag-row { display: flex; gap: 5px; flex-wrap: wrap; }
+.flag-chip { font-size: 9px; font-weight: 700; letter-spacing: 0.13em; padding: 4px 8px; border-radius: 3px; border: 1px solid; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+.flag-chip.active-green { background: rgba(52,199,89,.15); border-color: var(--ok); color: var(--ok); }
+.flag-chip.active-drs { background: rgba(10,132,255,.15); border-color: var(--bmw-blue-bright); color: var(--bmw-blue-bright); animation: drs-blink .8s step-end infinite; }
+@keyframes drs-blink { 50%{opacity:.3} }
+.flag-chip.inactive { border-color: var(--border2); color: var(--muted); }
+.flag-chip.active-yellow { background: rgba(255,159,10,.15); border-color: var(--warn); color: var(--warn); animation: pwarn 1s ease-in-out infinite; }
+.flag-chip.active-sc { background: rgba(255,214,10,.15); border-color: var(--bmw-yellow); color: var(--bmw-yellow); }
+@keyframes pwarn { 0%,100%{opacity:1}50%{opacity:.45} }
+
+/* Tire */
+.tire-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.tire-item { background: var(--surface); border-radius: 4px; padding: 7px; text-align: center; border: 1px solid var(--border); transition: border-color 0.35s; }
+.tire-pos { font-size: 9px; letter-spacing: .12em; color: var(--muted); font-weight: 600; margin-bottom: 3px; }
+.tire-temp { font-family: var(--font-m); font-size: 19px; font-weight: 700; }
+.tire-item.hot { border-color: var(--alert); }
+.tire-item.warm { border-color: var(--ok); }
+.tire-item.cold { border-color: var(--bmw-blue); }
+
+/* Fuel */
+.fuel-pct { font-family: var(--font-m); font-size: 26px; font-weight: 700; }
+.bar-wrap { background: var(--surface); border-radius: 3px; height: 9px; overflow: hidden; margin-top: 5px; }
+.bar-fill { height: 100%; border-radius: 3px; transition: width .8s ease; }
+.bar-fill.fuel { background: linear-gradient(90deg, var(--bmw-blue), var(--bmw-blue-bright)); }
+.bar-fill.ers { background: linear-gradient(90deg, #0A84FF, #BF5AF2); }
+.wunit { font-size: 10px; font-weight: 600; color: var(--muted); margin-top: 4px; letter-spacing: .08em; }
+
+/* ERS Mode */
+.ers-modes { display: flex; gap: 4px; margin-top: 7px; }
+.ers-btn { flex: 1; padding: 4px 0; font-family: var(--font-d); font-size: 9px; font-weight: 700; letter-spacing: .1em; text-align: center; border: 1px solid var(--border2); border-radius: 3px; cursor: pointer; color: var(--muted); transition: all .2s; text-transform: uppercase; }
+.ers-btn:hover { border-color: var(--border2); color: var(--white); }
+.ers-btn.active { background: rgba(191,90,242,.18); border-color: var(--purple); color: var(--purple); }
+
+/* Engine temps */
+.gauge-row { display: flex; gap: 9px; }
+.mini-gauge { flex: 1; }
+.mini-gauge-label { font-size: 9px; letter-spacing: .1em; color: var(--muted); font-weight: 600; margin-bottom: 3px; text-transform: uppercase; }
+.mini-gauge-val { font-family: var(--font-m); font-size: 17px; font-weight: 700; }
+.mini-bar-wrap { height: 4px; background: var(--surface); border-radius: 2px; margin-top: 3px; overflow: hidden; }
+.mini-bar-fill { height: 100%; border-radius: 2px; transition: width 1s; }
+.mini-bar-fill.water { background: var(--bmw-blue-bright); }
+.mini-bar-fill.oil { background: var(--warn); }
+
+/* Lap table */
+.lap-table { width: 100%; border-collapse: collapse; }
+.lap-table tr { border-bottom: 1px solid var(--border); }
+.lap-table td { padding: 4px 0; font-family: var(--font-m); font-size: 11px; color: var(--muted); }
+.lap-table td:last-child { text-align: right; color: var(--white); }
+.lap-table tr.best td:last-child { color: var(--bmw-yellow); }
+.lap-table tr.current-lap td:last-child { color: var(--bmw-blue-bright); }
+
+/* Sector */
+.sector-map { display: flex; gap: 5px; margin-top: 4px; }
+.sector-seg { flex: 1; height: 8px; border-radius: 2px; background: var(--surface); border: 1px solid var(--border); overflow: hidden; }
+.seg-fill { height: 100%; width: 0; border-radius: 2px; transition: width .3s; }
+.sector-times-row { display: flex; justify-content: space-between; margin-top: 5px; }
+.sector-t { font-family: var(--font-m); font-size: 11px; }
+
+/* Weather */
+.weather-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.weather-key { font-size: 10px; color: var(--muted); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.weather-val { font-family: var(--font-m); font-size: 13px; }
+
+/* ═══ CENTER ═══ */
+.panel-center { background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 14px; }
+
+/* RPM */
+.rpm-container { position: relative; width: 310px; height: 195px; flex-shrink: 0; }
+.rpm-svg { width: 100%; height: 100%; overflow: visible; }
+.rpm-readout { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); text-align: center; pointer-events: none; }
+.rpm-val { font-family: var(--font-m); font-size: 26px; font-weight: 700; }
+.rpm-label { font-size: 9px; letter-spacing: .2em; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+
+/* Speed */
+.center-row { display: flex; gap: 18px; align-items: center; justify-content: center; width: 100%; }
+.speed-block { text-align: center; }
+.speed-num { font-family: var(--font-m); font-size: 76px; font-weight: 700; line-height: 1; text-shadow: 0 0 50px rgba(10,132,255,.28); }
+.speed-unit { font-size: 11px; letter-spacing: .2em; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+
+/* Pedals */
+.pedals { display: flex; flex-direction: column; gap: 7px; width: 88px; }
+.pedal-row { display: flex; align-items: center; gap: 6px; }
+.pedal-lbl { font-size: 9px; font-weight: 700; letter-spacing: .12em; color: var(--muted); width: 22px; text-transform: uppercase; }
+.pedal-track { flex: 1; height: 9px; background: var(--surface2); border-radius: 3px; overflow: hidden; border: 1px solid var(--border); }
+.pedal-fill { height: 100%; border-radius: 3px; transition: width .1s; }
+.pedal-fill.throttle { background: linear-gradient(90deg, var(--ok), #70FF9E); }
+.pedal-fill.brake { background: linear-gradient(90deg, var(--alert), #FF8080); }
+.pedal-fill.clutch { background: linear-gradient(90deg, var(--bmw-yellow), #FFE97A); }
+.pedal-pct { font-family: var(--font-m); font-size: 10px; color: var(--muted); width: 26px; text-align: right; }
+
+/* G-Force */
+.gforce-container { width: 88px; }
+.gforce-canvas { border: 1px solid var(--border); border-radius: 50%; background: var(--surface2); display: block; }
+.gforce-lbl { font-size: 9px; letter-spacing: .12em; color: var(--muted); font-weight: 600; text-align: center; margin-top: 3px; text-transform: uppercase; }
+
+/* Delta */
+.delta-section { width: 100%; max-width: 330px; }
+.delta-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.delta-title { font-size: 9px; font-weight: 700; letter-spacing: .15em; color: var(--muted); text-transform: uppercase; }
+.delta-val { font-family: var(--font-m); font-size: 13px; font-weight: 700; }
+.delta-val.neg { color: var(--ok); } .delta-val.pos { color: var(--alert); }
+.delta-track { height: 6px; background: var(--surface2); border-radius: 3px; position: relative; overflow: hidden; border: 1px solid var(--border); }
+.delta-center { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--muted); }
+.delta-fill { position: absolute; top: 0; bottom: 0; width: 0; transition: all .3s; }
+.delta-fill.neg { right: 50%; background: var(--ok); }
+.delta-fill.pos { left: 50%; background: var(--alert); }
+
+/* Pit controls */
+.pit-controls { display: flex; gap: 6px; width: 100%; max-width: 330px; }
+.pit-btn { flex: 1; padding: 6px 0; font-family: var(--font-d); font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; border: 1px solid var(--border2); border-radius: 3px; background: var(--surface2); color: var(--muted); cursor: pointer; transition: all .2s; }
+.pit-btn:hover { color: var(--white); border-color: var(--border2); }
+.pit-btn.pit-active { background: rgba(255,159,10,.15); border-color: var(--warn); color: var(--warn); }
+.pit-btn.radio-active { background: rgba(10,132,255,.15); border-color: var(--bmw-blue-bright); color: var(--bmw-blue-bright); animation: drs-blink .9s step-end infinite; }
+
+/* ═══ FOOTER ═══ */
+.footer { grid-column: 1/-1; background: var(--surface); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; gap: 12px; border-top: 1px solid var(--border); }
+.timing-group { display: flex; gap: 20px; align-items: center; }
+.timing-block { text-align: center; }
+.timing-sub { font-size: 9px; letter-spacing: .16em; color: var(--muted); font-weight: 600; text-transform: uppercase; margin-bottom: 1px; }
+.timing-val { font-family: var(--font-m); font-size: 21px; font-weight: 700; }
+.timing-val.best { color: var(--bmw-yellow); }
+.timing-val.last-t { color: var(--muted); }
+.sector-footer { display: flex; gap: 12px; }
+.sector-block { text-align: center; }
+.sector-sub { font-size: 9px; letter-spacing: .12em; color: var(--muted); font-weight: 600; text-transform: uppercase; margin-bottom: 1px; }
+.foot-sec { font-family: var(--font-m); font-size: 15px; font-weight: 700; }
+.foot-sec.purple { color: var(--purple); }
+.foot-sec.green { color: var(--ok); }
+.foot-sec.yellow { color: var(--warn); }
+.track-map-wrap { display: flex; flex-direction: column; align-items: center; }
+.track-label { font-size: 9px; letter-spacing: .18em; color: var(--muted); font-weight: 600; text-transform: uppercase; margin-bottom: 2px; }
+.driver-block { text-align: right; }
+.driver-name { font-family: var(--font-d); font-size: 15px; font-weight: 700; }
+.driver-car { font-family: var(--font-m); font-size: 10px; color: var(--bmw-blue-bright); }
+
+/* ═══ TOAST ═══ */
+.toast-container { position: fixed; top: 64px; right: 16px; z-index: 9000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast { background: var(--surface2); border: 1px solid var(--border2); border-radius: 5px; padding: 10px 16px; font-size: 12px; font-weight: 600; letter-spacing: .06em; max-width: 260px; box-shadow: 0 4px 24px rgba(0,0,0,.5); animation: toast-in .25s ease; pointer-events: auto; }
+@keyframes toast-in { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+.toast.ok { border-color: var(--ok); color: var(--ok); }
+.toast.warn { border-color: var(--warn); color: var(--warn); }
+.toast.info { border-color: var(--bmw-blue); color: var(--bmw-blue-bright); }
+.toast.yellow { border-color: var(--bmw-yellow); color: var(--bmw-yellow); }
+
+/* ═══ MODAL OVERLAY ═══ */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.72); z-index: 8000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); animation: mfade .2s ease; }
+@keyframes mfade { from{opacity:0} to{opacity:1} }
+.modal-overlay.hidden { display: none; }
+
+/* ═══ BOOKING MODAL ═══ */
+.booking-modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 8px; width: 740px; max-width: 96vw; max-height: 88vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 24px 80px rgba(0,0,0,.7); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.modal-title { font-size: 20px; font-weight: 700; letter-spacing: .08em; }
+.modal-subtitle { font-size: 11px; color: var(--muted); font-weight: 500; letter-spacing: .1em; text-transform: uppercase; margin-top: 1px; }
+.modal-close { background: var(--surface2); border: 1px solid var(--border2); color: var(--muted); width: 30px; height: 30px; border-radius: 4px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.modal-close:hover { color: var(--white); border-color: var(--alert); }
+.modal-body { padding: 20px 22px; overflow-y: auto; flex: 1; }
+.modal-footer { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; flex-shrink: 0; }
+
+/* Booking steps */
+.booking-steps { display: flex; gap: 0; margin-bottom: 22px; }
+.step-item { flex: 1; display: flex; align-items: center; }
+.step-dot { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border2); font-family: var(--font-m); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; color: var(--muted); flex-shrink: 0; transition: all .3s; }
+.step-dot.active { border-color: var(--bmw-blue-bright); color: var(--bmw-blue-bright); background: rgba(10,132,255,.12); }
+.step-dot.done { border-color: var(--ok); color: var(--ok); background: rgba(52,199,89,.12); }
+.step-label { font-size: 10px; font-weight: 600; letter-spacing: .1em; color: var(--muted); margin-left: 7px; text-transform: uppercase; }
+.step-label.active { color: var(--white); }
+.step-line { flex: 1; height: 1px; background: var(--border2); margin: 0 8px; }
+.step-line.done { background: var(--ok); }
+
+/* Package cards */
+.package-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.pkg-card { border: 2px solid var(--border2); border-radius: 6px; padding: 14px; cursor: pointer; transition: all .2s; background: var(--surface2); }
+.pkg-card:hover { border-color: var(--bmw-blue); }
+.pkg-card.selected { border-color: var(--bmw-blue-bright); background: rgba(10,132,255,.08); }
+.pkg-name { font-size: 15px; font-weight: 700; letter-spacing: .06em; margin-bottom: 4px; }
+.pkg-car { font-family: var(--font-m); font-size: 10px; color: var(--bmw-blue-bright); margin-bottom: 8px; }
+.pkg-price { font-family: var(--font-m); font-size: 20px; font-weight: 700; color: var(--bmw-yellow); margin-bottom: 8px; }
+.pkg-features { list-style: none; }
+.pkg-features li { font-size: 11px; color: var(--muted); padding: 2px 0; display: flex; align-items: center; gap: 5px; }
+.pkg-features li::before { content: '·'; color: var(--bmw-blue-bright); font-size: 16px; line-height: 1; }
+.pkg-badge { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: .12em; padding: 2px 7px; border-radius: 2px; text-transform: uppercase; margin-bottom: 6px; }
+.pkg-badge.popular { background: rgba(255,214,10,.15); border: 1px solid rgba(255,214,10,.4); color: var(--bmw-yellow); }
+.pkg-badge.elite { background: rgba(191,90,242,.15); border: 1px solid rgba(191,90,242,.4); color: var(--purple); }
+
+/* Calendar */
+.cal-row { display: flex; gap: 20px; }
+.cal-wrap { flex: 1; }
+.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.cal-title { font-size: 15px; font-weight: 700; letter-spacing: .06em; }
+.cal-nav { background: var(--surface2); border: 1px solid var(--border2); color: var(--muted); width: 28px; height: 28px; border-radius: 3px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.cal-nav:hover { color: var(--white); border-color: var(--bmw-blue); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.cal-day-label { text-align: center; font-size: 9px; font-weight: 700; letter-spacing: .1em; color: var(--muted); padding: 4px 0; text-transform: uppercase; }
+.cal-day { text-align: center; padding: 7px 4px; font-family: var(--font-m); font-size: 12px; border-radius: 4px; cursor: pointer; transition: all .15s; color: var(--muted); }
+.cal-day:hover:not(.disabled):not(.empty) { background: var(--surface2); color: var(--white); }
+.cal-day.today { color: var(--bmw-blue-bright); font-weight: 700; }
+.cal-day.selected { background: var(--bmw-blue); color: var(--white); font-weight: 700; }
+.cal-day.has-slots { position: relative; }
+.cal-day.has-slots::after { content:''; position:absolute; bottom:2px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:var(--ok); }
+.cal-day.disabled,.cal-day.empty { opacity: .3; cursor: default; pointer-events: none; }
+.cal-day.past { opacity: .25; cursor: default; pointer-events: none; }
+
+/* Time slots */
+.slots-wrap { flex: 0 0 180px; }
+.slots-title { font-size: 12px; font-weight: 700; letter-spacing: .08em; margin-bottom: 10px; }
+.slots-grid { display: flex; flex-direction: column; gap: 5px; }
+.time-slot { padding: 8px 12px; border: 1px solid var(--border2); border-radius: 4px; cursor: pointer; transition: all .15s; display: flex; justify-content: space-between; align-items: center; }
+.time-slot:hover:not(.booked) { border-color: var(--bmw-blue); background: rgba(10,132,255,.07); }
+.time-slot.selected { border-color: var(--bmw-blue-bright); background: rgba(10,132,255,.14); }
+.time-slot.booked { opacity: .35; cursor: not-allowed; }
+.slot-time { font-family: var(--font-m); font-size: 12px; font-weight: 700; }
+.slot-avail { font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.slot-avail.open { color: var(--ok); }
+.slot-avail.full { color: var(--alert); }
+.slot-avail.few { color: var(--warn); }
+
+/* Driver form */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1/-1; }
+.form-label { font-size: 10px; font-weight: 700; letter-spacing: .12em; color: var(--muted); text-transform: uppercase; }
+.form-input { background: var(--surface2); border: 1px solid var(--border2); border-radius: 4px; padding: 8px 11px; color: var(--white); font-family: var(--font-d); font-size: 13px; font-weight: 500; outline: none; transition: border-color .15s; cursor: text; user-select: text; }
+.form-input:focus { border-color: var(--bmw-blue-bright); }
+.form-input::placeholder { color: var(--muted); }
+select.form-input { cursor: pointer; }
+.experience-row { display: flex; gap: 8px; margin-top: 4px; }
+.exp-btn { flex: 1; padding: 7px 6px; font-family: var(--font-d); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-align: center; border: 1px solid var(--border2); border-radius: 4px; cursor: pointer; color: var(--muted); transition: all .2s; text-transform: uppercase; }
+.exp-btn:hover { color: var(--white); border-color: var(--border2); }
+.exp-btn.selected { border-color: var(--bmw-blue-bright); color: var(--bmw-blue-bright); background: rgba(10,132,255,.1); }
+
+/* Summary */
+.summary-card { background: var(--surface2); border: 1px solid var(--border2); border-radius: 6px; padding: 16px; margin-bottom: 14px; }
+.summary-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); }
+.summary-row:last-child { border-bottom: none; padding-bottom: 0; }
+.summary-key { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.summary-val { font-family: var(--font-m); font-size: 12px; font-weight: 700; color: var(--white); }
+.summary-total { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(10,132,255,.08); border: 1px solid rgba(10,132,255,.25); border-radius: 5px; margin-bottom: 14px; }
+.summary-total-label { font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.summary-total-val { font-family: var(--font-m); font-size: 24px; font-weight: 700; color: var(--bmw-yellow); }
+.terms-text { font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+/* Confirmation */
+.confirm-screen { text-align: center; padding: 20px 0; }
+.confirm-icon { font-size: 52px; margin-bottom: 14px; }
+.confirm-title { font-size: 24px; font-weight: 700; letter-spacing: .06em; margin-bottom: 6px; color: var(--ok); }
+.confirm-sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; line-height: 1.6; }
+.confirm-ref { font-family: var(--font-m); font-size: 18px; font-weight: 700; color: var(--bmw-yellow); background: rgba(255,214,10,.08); border: 1px solid rgba(255,214,10,.25); padding: 8px 20px; border-radius: 4px; display: inline-block; letter-spacing: .12em; }
+
+/* Modal buttons */
+.mbtn { padding: 9px 22px; font-family: var(--font-d); font-size: 13px; font-weight: 700; letter-spacing: .1em; border-radius: 4px; cursor: pointer; border: 1px solid; transition: all .2s; text-transform: uppercase; }
+.mbtn.secondary { background: var(--surface2); border-color: var(--border2); color: var(--muted); }
+.mbtn.secondary:hover { border-color: var(--white); color: var(--white); }
+.mbtn.primary { background: var(--bmw-blue); border-color: var(--bmw-blue-bright); color: var(--white); }
+.mbtn.primary:hover { background: var(--bmw-blue-bright); }
+.mbtn.confirm { background: rgba(52,199,89,.15); border-color: var(--ok); color: var(--ok); }
+.mbtn.confirm:hover { background: rgba(52,199,89,.28); }
+.mbtn:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
+
+/* Scrollbar */
+.modal-body::-webkit-scrollbar { width: 5px; }
+.modal-body::-webkit-scrollbar-track { background: var(--surface); }
+.modal-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="dashboard" id="dashboard">
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="header">
+    <div class="header-brand">
+      <div class="bmw-roundel"></div>
+      <div><div class="brand-text">KYALAMI BMW</div><div class="brand-sub">Driver Telemetry</div></div>
+    </div>
+    <div class="header-center">
+      <div class="session-badge" id="sessionBadge">RACE · LAP 12 / 28</div>
+      <div class="clock-display" id="clockDisplay">00:00:00</div>
+      <div class="header-controls">
+        <button class="hbtn active" id="btnPlayPause" onclick="togglePause()">⏸ PAUSE</button>
+        <button class="hbtn" id="btnScenario" onclick="nextScenario()">⟳ SCENARIO</button>
+        <button class="hbtn" id="btnPitRadio" onclick="triggerPitRadio()">📻 PIT RADIO</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="hbtn booking" onclick="openBooking()">📅 BOOK TRACK TIME</button>
+      <div class="status-live"><div class="status-dot" id="statusDot"></div><div class="status-label" id="statusLabel">LIVE</div></div>
+    </div>
+  </header>
+
+  <!-- ═══ LEFT PANEL ═══ -->
+  <aside class="panel-left">
+    <div class="widget" style="flex:0 0 auto">
+      <div class="wlabel">Race Position</div>
+      <div class="pos-row">
+        <div class="pos-block"><div class="pos-num current" id="posNum">3</div><div class="pos-sub">POS</div></div>
+        <div class="pos-block"><div class="pos-gap" id="gapAhead">+2.4s</div><div class="pos-sub">Ahead</div></div>
+        <div class="pos-block"><div class="pos-gap" id="gapBehind">−3.8s</div><div class="pos-sub">Behind</div></div>
+      </div>
+    </div>
+    <div class="widget" style="flex:0 0 auto;text-align:center">
+      <div class="wlabel">Gear</div>
+      <div class="gear-display" id="gearDisplay">4</div>
+    </div>
+    <div class="widget" style="flex:0 0 auto">
+      <div class="wlabel">Race Control</div>
+      <div class="flag-row">
+        <div class="flag-chip active-green" id="flagGreen" onclick="toggleFlag('green')">Green</div>
+        <div class="flag-chip inactive" id="flagYellow" onclick="toggleFlag('yellow')">Yellow</div>
+        <div class="flag-chip inactive" id="flagSC" onclick="toggleFlag('sc')">SC</div>
+        <div class="flag-chip inactive" id="flagDRS" onclick="toggleFlag('drs')">DRS</div>
+      </div>
+    </div>
+    <div class="widget">
+      <div class="wlabel">Tyre Temps (°C)</div>
+      <div class="tire-grid">
+        <div class="tire-item warm" id="tireFL"><div class="tire-pos">FL</div><div class="tire-temp" id="tireFLval">88°</div></div>
+        <div class="tire-item warm" id="tireFR"><div class="tire-pos">FR</div><div class="tire-temp" id="tireFRval">91°</div></div>
+        <div class="tire-item warm" id="tireRL"><div class="tire-pos">RL</div><div class="tire-temp" id="tireRLval">85°</div></div>
+        <div class="tire-item cold" id="tireRR"><div class="tire-pos">RR</div><div class="tire-temp" id="tireRRval">74°</div></div>
+      </div>
+    </div>
+    <div class="widget">
+      <div class="wlabel">Fuel</div>
+      <div class="fuel-pct" id="fuelPct">62%</div>
+      <div class="bar-wrap"><div class="bar-fill fuel" id="fuelBar" style="width:62%"></div></div>
+      <div class="wunit" id="fuelLaps">~18 laps remaining</div>
+    </div>
+  </aside>
+
+  <!-- ═══ CENTER ═══ -->
+  <main class="panel-center">
+    <div class="rpm-container">
+      <svg class="rpm-svg" id="rpmSvg" viewBox="0 0 310 195" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="rpmGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#0066CC"/>
+            <stop offset="60%" style="stop-color:#0A84FF"/>
+            <stop offset="85%" style="stop-color:#FFD60A"/>
+            <stop offset="100%" style="stop-color:#FF3B30"/>
+          </linearGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="3" result="cb"/><feMerge><feMergeNode in="cb"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <path id="rpmTrack" d="" stroke="#1A1A1F" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <path id="rpmArc" d="" stroke="url(#rpmGrad)" stroke-width="10" fill="none" stroke-linecap="round" filter="url(#glow)" stroke-dasharray="0 1000"/>
+        <path id="redlineArc" d="" stroke="rgba(255,59,48,0.25)" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <g id="rpmTicks" stroke="var(--muted)" stroke-width="1.5" fill="var(--muted)" font-family="JetBrains Mono,monospace" font-size="9" text-anchor="middle"></g>
+      </svg>
+      <div class="rpm-readout"><div class="rpm-val" id="rpmVal">6,420</div><div class="rpm-label">RPM</div></div>
+    </div>
+
+    <div class="center-row">
+      <div class="pedals">
+        <div class="pedal-row"><div class="pedal-lbl">THR</div><div class="pedal-track"><div class="pedal-fill throttle" id="pedalThrottle" style="width:78%"></div></div><div class="pedal-pct" id="pedalThrottlePct">78%</div></div>
+        <div class="pedal-row"><div class="pedal-lbl">BRK</div><div class="pedal-track"><div class="pedal-fill brake" id="pedalBrake" style="width:0%"></div></div><div class="pedal-pct" id="pedalBrakePct">0%</div></div>
+        <div class="pedal-row"><div class="pedal-lbl">CLT</div><div class="pedal-track"><div class="pedal-fill clutch" id="pedalClutch" style="width:0%"></div></div><div class="pedal-pct" id="pedalClutchPct">0%</div></div>
+      </div>
+      <div class="speed-block"><div class="speed-num" id="speedVal">187</div><div class="speed-unit">km/h</div></div>
+      <div class="gforce-container"><canvas class="gforce-canvas" id="gforceCanvas" width="88" height="88"></canvas><div class="gforce-lbl">G-Force</div></div>
+    </div>
+
+    <div class="delta-section">
+      <div class="delta-label-row">
+        <div class="delta-title">Delta vs Best Lap</div>
+        <div class="delta-val neg" id="deltaVal">−0.312s</div>
+      </div>
+      <div class="delta-track"><div class="delta-center"></div><div class="delta-fill neg" id="deltaFillNeg" style="width:20%"></div><div class="delta-fill pos" id="deltaFillPos" style="width:0%"></div></div>
+    </div>
+
+    <div class="pit-controls">
+      <button class="pit-btn" id="btnPitIn" onclick="triggerPitIn()">🔧 PIT IN</button>
+      <button class="pit-btn" id="btnDRS" onclick="toggleDRS()">↑ DRS</button>
+      <button class="pit-btn" id="btnFastLap" onclick="setFastLap()">⚡ PUSH</button>
+      <button class="pit-btn" id="btnSave" onclick="setSaveMode()">🛡 SAVE</button>
+    </div>
+  </main>
+
+  <!-- ═══ RIGHT PANEL ═══ -->
+  <aside class="panel-right">
+    <div class="widget">
+      <div class="wlabel">Lap History</div>
+      <table class="lap-table"><tbody id="lapHistoryTable">
+        <tr><td>L9</td><td>1:34.821</td></tr>
+        <tr><td>L10</td><td>1:34.203</td></tr>
+        <tr class="best"><td>L11</td><td>1:33.971 ★</td></tr>
+        <tr class="current-lap"><td>L12</td><td id="currentLapCell">0:42.— ›</td></tr>
+      </tbody></table>
+    </div>
+    <div class="widget" style="flex:0 0 auto">
+      <div class="wlabel">Sectors</div>
+      <div class="sector-map">
+        <div class="sector-seg"><div class="seg-fill" id="seg1fill" style="background:var(--ok);width:100%"></div></div>
+        <div class="sector-seg"><div class="seg-fill" id="seg2fill" style="background:var(--warn);width:100%"></div></div>
+        <div class="sector-seg"><div class="seg-fill" id="seg3fill" style="background:var(--muted);width:0%"></div></div>
+      </div>
+      <div class="sector-times-row">
+        <span class="sector-t" id="sec1t" style="color:var(--ok)">28.412</span>
+        <span class="sector-t" id="sec2t" style="color:var(--warn)">35.681</span>
+        <span class="sector-t" id="sec3t" style="color:var(--muted)">—</span>
+      </div>
+    </div>
+    <div class="widget" style="flex:0 0 auto">
+      <div class="wlabel">Engine Health</div>
+      <div class="gauge-row">
+        <div class="mini-gauge">
+          <div class="mini-gauge-label">Water</div>
+          <div class="mini-gauge-val" id="waterTemp" style="color:var(--bmw-blue-bright)">84°C</div>
+          <div class="mini-bar-wrap"><div class="mini-bar-fill water" id="waterBar" style="width:56%"></div></div>
+        </div>
+        <div class="mini-gauge">
+          <div class="mini-gauge-label">Oil</div>
+          <div class="mini-gauge-val" id="oilTemp" style="color:var(--warn)">102°C</div>
+          <div class="mini-bar-wrap"><div class="mini-bar-fill oil" id="oilBar" style="width:68%"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="widget" style="flex:0 0 auto">
+      <div class="wlabel">ERS Deployment</div>
+      <div class="fuel-pct" id="ersPct" style="font-size:22px">74%</div>
+      <div class="bar-wrap"><div class="bar-fill ers" id="ersBar" style="width:74%"></div></div>
+      <div class="ers-modes">
+        <div class="ers-btn" id="ersLow" onclick="setERS('LOW')">LOW</div>
+        <div class="ers-btn active" id="ersMed" onclick="setERS('MED')">MED</div>
+        <div class="ers-btn" id="ersHigh" onclick="setERS('HIGH')">HIGH</div>
+        <div class="ers-btn" id="ersOT" onclick="setERS('OT')">O/T</div>
+      </div>
+    </div>
+    <div class="widget">
+      <div class="wlabel">Track Conditions</div>
+      <div class="weather-row"><span class="weather-key">AIR</span><span class="weather-val" id="airTemp">24°C</span></div>
+      <div class="weather-row"><span class="weather-key">TRACK</span><span class="weather-val" id="trackTemp" style="color:var(--warn)">38°C</span></div>
+      <div class="weather-row"><span class="weather-key">HUMID</span><span class="weather-val" id="humidity">42%</span></div>
+      <div class="weather-row" style="margin-bottom:0"><span class="weather-key">COND</span><span class="weather-val" id="condition" style="color:var(--ok)">DRY</span></div>
+    </div>
+  </aside>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <div class="timing-group">
+      <div class="timing-block"><div class="timing-sub">Current</div><div class="timing-val" id="currentLapTime">0:42.00</div></div>
+      <div class="timing-block"><div class="timing-sub">Last</div><div class="timing-val last-t" id="lastLapTime">1:33.971</div></div>
+      <div class="timing-block"><div class="timing-sub">Best</div><div class="timing-val best" id="bestLapTime">1:33.971</div></div>
+    </div>
+    <div class="sector-footer">
+      <div class="sector-block"><div class="sector-sub">Sector 1</div><div class="foot-sec purple" id="footSec1">28.412</div></div>
+      <div class="sector-block"><div class="sector-sub">Sector 2</div><div class="foot-sec yellow" id="footSec2">35.681</div></div>
+      <div class="sector-block"><div class="sector-sub">Sector 3</div><div class="foot-sec" id="footSec3" style="color:var(--muted)">—</div></div>
+    </div>
+    <div class="track-map-wrap">
+      <div class="track-label">Kyalami Circuit</div>
+      <svg width="158" height="58" viewBox="0 0 158 58">
+        <path d="M18,28 Q18,9 38,7 L78,7 Q108,7 118,14 L133,24 Q143,29 138,39 L128,49 Q118,57 98,54 L48,54 Q28,57 18,49 Z" fill="none" stroke="#2A2A32" stroke-width="6" stroke-linejoin="round"/>
+        <path d="M18,28 Q18,9 38,7 L78,7 Q108,7 118,14 L133,24 Q143,29 138,39 L128,49 Q118,57 98,54 L48,54 Q28,57 18,49 Z" fill="none" stroke="#0066CC" stroke-width="3" stroke-linejoin="round" opacity="0.45"/>
+        <circle id="carDot" cx="78" cy="7" r="5" fill="#FFD60A"/>
+      </svg>
+    </div>
+    <div class="driver-block">
+      <div class="driver-name">M. LAUBSCHER</div>
+      <div class="driver-car">#17 · BMW M4 GT3</div>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══ TOAST CONTAINER ═══ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ═══ BOOKING MODAL ═══ -->
+<div class="modal-overlay hidden" id="bookingOverlay" onclick="handleOverlayClick(event)">
+  <div class="booking-modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Book Track Time</div>
+        <div class="modal-subtitle">Kyalami Grand Prix Circuit — BMW Experience</div>
+      </div>
+      <button class="modal-close" onclick="closeBooking()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"><!-- dynamic --></div>
+    <div class="modal-footer" id="modalFooter"><!-- dynamic --></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// TELEMETRY STATE
+// ══════════════════════════════════════════════════════════
+const S = {
+  rpm:6420, rpmTarget:6420, speed:187, speedTarget:187,
+  gear:4, gearTarget:4, throttle:78, brake:0, clutch:0,
+  fuel:62, ers:74, ersMode:'MED',
+  gx:0.2, gy:-1.1,
+  tireTemps:{FL:88,FR:91,RL:85,RR:74},
+  waterTemp:84, oilTemp:102,
+  lapTimeMs:42000, raceTime:0,
+  bestLapMs:93971, lastLapMs:93971,
+  deltaMs:-312,
+  pos:3, gapAhead:2.4, gapBehind:3.8,
+  drsActive:false, yellowFlag:false, sc:false, greenFlag:true,
+  pitMode:false, pushMode:false, saveMode:false,
+  lapCount:12, totalLaps:28,
+  scenario:'accel', scenarioTimer:0,
+  paused:false,
+  radioActive:false,
+};
+const SCENARIOS = ['accel','brake','corner_l','corner_r','cruising','pitstop_prep'];
+let scenarioIndex = 0;
+
+// ══════════════════════════════════════════════════════════
+// RPM ARC
+// ══════════════════════════════════════════════════════════
+const RPM_CX=155, RPM_CY=192, RPM_R=148, RPM_START=195, RPM_END=345, RPM_MAX=9000;
+function d2r(d){return d*Math.PI/180;}
+function arcPath(cx,cy,r,s,e){
+  const sr=d2r(s),er=d2r(e);
+  const large=(e-s)>180?1:0;
+  return `M${cx+r*Math.cos(sr)},${cy+r*Math.sin(sr)} A${r},${r} 0 ${large},1 ${cx+r*Math.cos(er)},${cy+r*Math.sin(er)}`;
+}
+function arcLen(s,e,r){return(e-s)/360*2*Math.PI*r;}
+
+function initRPMArc(){
+  document.getElementById('rpmTrack').setAttribute('d',arcPath(RPM_CX,RPM_CY,RPM_R,RPM_START,RPM_END));
+  const redStart=RPM_START+(RPM_END-RPM_START)*(7800/RPM_MAX);
+  document.getElementById('redlineArc').setAttribute('d',arcPath(RPM_CX,RPM_CY,RPM_R,redStart,RPM_END));
+  const ticks=document.getElementById('rpmTicks');
+  for(let i=0;i<=9;i++){
+    const frac=i/9, deg=RPM_START+(RPM_END-RPM_START)*frac, rad=d2r(deg);
+    const r1=RPM_R-13, r2=RPM_R-21;
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',RPM_CX+r1*Math.cos(rad)); line.setAttribute('y1',RPM_CY+r1*Math.sin(rad));
+    line.setAttribute('x2',RPM_CX+r2*Math.cos(rad)); line.setAttribute('y2',RPM_CY+r2*Math.sin(rad));
+    ticks.appendChild(line);
+    const tr=RPM_R-30, tx=RPM_CX+tr*Math.cos(rad), ty=RPM_CY+tr*Math.sin(rad);
+    const text=document.createElementNS('http://www.w3.org/2000/svg','text');
+    text.setAttribute('x',tx); text.setAttribute('y',ty+3); text.textContent=i;
+    ticks.appendChild(text);
+  }
+}
+function updateRPMArc(rpm){
+  const arc=document.getElementById('rpmArc');
+  const frac=Math.min(rpm/RPM_MAX,1);
+  const total=arcLen(RPM_START,RPM_END,RPM_R);
+  arc.setAttribute('d',arcPath(RPM_CX,RPM_CY,RPM_R,RPM_START,RPM_END));
+  arc.style.strokeDasharray=`${frac*total} ${total}`;
+}
+
+// ══════════════════════════════════════════════════════════
+// G-FORCE
+// ══════════════════════════════════════════════════════════
+const gfHist=[];
+function drawGForce(gx,gy){
+  const canvas=document.getElementById('gforceCanvas');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,maxG=3;
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='#2A2A32'; ctx.lineWidth=1;
+  [1,2,3].forEach(r=>{ctx.beginPath();ctx.arc(cx,cy,(r/maxG)*cx*.84,0,Math.PI*2);ctx.stroke();});
+  ctx.beginPath();ctx.moveTo(cx,4);ctx.lineTo(cx,H-4);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(4,cy);ctx.lineTo(W-4,cy);ctx.stroke();
+  gfHist.push({gx,gy});
+  if(gfHist.length>28)gfHist.shift();
+  gfHist.forEach((p,i)=>{
+    const a=i/gfHist.length;
+    const px=cx+(p.gx/maxG)*cx*.84, py=cy-(p.gy/maxG)*cy*.84;
+    ctx.beginPath();ctx.arc(px,py,2,0,Math.PI*2);
+    ctx.fillStyle=`rgba(10,132,255,${a*.45})`;ctx.fill();
+  });
+  const px=cx+(gx/maxG)*cx*.84, py=cy-(gy/maxG)*cy*.84;
+  const mag=Math.sqrt(gx*gx+gy*gy);
+  const hue=mag>2?0:mag>1.2?38:210;
+  ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);
+  ctx.fillStyle=`hsl(${hue},90%,62%)`;
+  ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=8;ctx.fill();ctx.shadowBlur=0;
+}
+
+// ══════════════════════════════════════════════════════════
+// FORMATTING
+// ══════════════════════════════════════════════════════════
+function fmtLap(ms){
+  const m=Math.floor(ms/60000),s=Math.floor((ms%60000)/1000),cs=Math.floor((ms%1000)/10);
+  return `${m}:${String(s).padStart(2,'0')}.${String(cs).padStart(2,'0')}`;
+}
+function fmtRace(ms){
+  const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000),s=Math.floor((ms%60000)/1000);
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function tireClass(t){return t>100?'hot':t>=78?'warm':'cold';}
+function tireColor(t){return t>100?'var(--alert)':t>=78?'var(--ok)':'var(--bmw-blue-bright)';}
+
+// ══════════════════════════════════════════════════════════
+// SCENARIO ENGINE
+// ══════════════════════════════════════════════════════════
+const lerp=(a,b,t)=>a+(b-a)*t;
+function runScenario(dt){
+  S.scenarioTimer+=dt;
+  const dur=3000, t=Math.min(S.scenarioTimer/dur,1);
+  const ersMult = S.ersMode==='HIGH'?1.2:S.ersMode==='OT'?1.4:S.ersMode==='LOW'?0.7:1;
+  const saveMult = S.saveMode ? 0.85 : S.pushMode ? 1.15 : 1;
+  switch(S.scenario){
+    case 'accel':
+      S.rpmTarget=lerp(5000,8200*ersMult*saveMult,t);
+      S.speedTarget=lerp(140,220*saveMult,t);
+      S.gearTarget=t<.3?4:t<.6?5:6;
+      S.throttle=lerp(60,98*saveMult,t); S.brake=0;
+      S.gx=0.1*Math.sin(t*5); S.gy=lerp(-0.5,-2.2*ersMult,t);
+      break;
+    case 'brake':
+      S.rpmTarget=lerp(8200,3500,t); S.speedTarget=lerp(220,60,t);
+      S.gearTarget=t<.3?6:t<.6?4:2;
+      S.throttle=0; S.brake=lerp(0,95,Math.min(t*1.5,1));
+      S.gx=.2*Math.sin(t*3); S.gy=lerp(0,3.8,Math.min(t*1.5,1));
+      break;
+    case 'corner_l':
+      S.rpmTarget=lerp(4000,5500,t); S.speedTarget=lerp(80,110,t);
+      S.gearTarget=3; S.throttle=lerp(20,60,t); S.brake=lerp(10,0,t);
+      S.gx=lerp(-0.5,-2.8,Math.sin(t*Math.PI)); S.gy=lerp(.5,-.5,t);
+      break;
+    case 'corner_r':
+      S.rpmTarget=lerp(4200,5800,t); S.speedTarget=lerp(75,120,t);
+      S.gearTarget=3; S.throttle=lerp(15,65,t); S.brake=lerp(15,0,t);
+      S.gx=lerp(.5,2.5,Math.sin(t*Math.PI)); S.gy=lerp(.4,-.4,t);
+      break;
+    case 'cruising':
+      S.rpmTarget=5800+Math.sin(t*4)*400; S.speedTarget=180+Math.sin(t*3)*10;
+      S.gearTarget=5; S.throttle=55+Math.sin(t*3)*10; S.brake=0;
+      S.gx=Math.sin(t*6)*.4; S.gy=-.3-Math.abs(Math.sin(t*4))*.5;
+      break;
+    case 'pitstop_prep':
+      S.rpmTarget=lerp(6000,2000,t); S.speedTarget=lerp(160,20,t);
+      S.gearTarget=t<.3?5:t<.7?3:1; S.throttle=lerp(50,0,t); S.brake=lerp(0,80,t);
+      S.gx=0; S.gy=lerp(0,2.8,t);
+      break;
+  }
+  if(S.scenarioTimer>=dur){
+    S.scenarioTimer=0;
+    scenarioIndex=(scenarioIndex+1)%SCENARIOS.length;
+    S.scenario=SCENARIOS[scenarioIndex];
+    if(S.scenario==='pitstop_prep')showToast('Engineer: "Box this lap, box this lap"','warn');
+    if(S.scenario==='accel')showToast('DRS available — push hard','info');
+  }
+}
+
+// Track dot
+const TRACK_PTS=[
+  {cx:78,cy:7},{cx:108,cy:9},{cx:128,cy:15},{cx:138,cy:27},
+  {cx:133,cy:41},{cx:116,cy:53},{cx:88,cy:56},{cx:58,cy:55},
+  {cx:36,cy:53},{cx:22,cy:43},{cx:16,cy:33},{cx:18,cy:21},{cx:34,cy:10}
+];
+let trackProg=0;
+function updateTrackDot(dt){
+  trackProg=(trackProg+dt/12000)%1;
+  const n=TRACK_PTS.length,fi=trackProg*n,i=Math.floor(fi)%n,j=(i+1)%n,t=fi-Math.floor(fi);
+  const px=TRACK_PTS[i].cx+(TRACK_PTS[j].cx-TRACK_PTS[i].cx)*t;
+  const py=TRACK_PTS[i].cy+(TRACK_PTS[j].cy-TRACK_PTS[i].cy)*t;
+  const dot=document.getElementById('carDot');
+  if(dot){dot.setAttribute('cx',px);dot.setAttribute('cy',py);}
+}
+
+// ══════════════════════════════════════════════════════════
+// MAIN LOOP
+// ══════════════════════════════════════════════════════════
+let lastTime=performance.now();
+function loop(now){
+  requestAnimationFrame(loop);
+  const dt=now-lastTime; lastTime=now;
+  if(S.paused)return;
+
+  runScenario(dt);
+  const sm=1-Math.exp(-dt/150);
+  S.rpm+=(S.rpmTarget-S.rpm)*sm;
+  S.speed+=(S.speedTarget-S.speed)*sm;
+
+  S.raceTime+=dt;
+  S.lapTimeMs+=dt;
+
+  // Lap completion simulation (~93s per lap)
+  if(S.lapTimeMs>93500&&S.lapCount<S.totalLaps){
+    S.lastLapMs=S.lapTimeMs;
+    if(S.lapTimeMs<S.bestLapMs){S.bestLapMs=S.lapTimeMs;showToast('★ New personal best!','ok');}
+    S.lapTimeMs=0; S.lapCount++;
+    addLapRow();
+    document.getElementById('sessionBadge').textContent=`RACE · LAP ${S.lapCount} / ${S.totalLaps}`;
+  }
+
+  // Fuel drain
+  S.fuel=Math.max(0,62-(S.raceTime/1000)*(S.saveMode?0.003:0.004));
+  if(S.fuel<15&&Math.floor(S.raceTime/1000)%60===0)showToast('⚠ Low fuel warning','warn');
+
+  // ERS
+  const ersDrain=S.ersMode==='HIGH'?.015:S.ersMode==='OT'?.022:S.ersMode==='LOW'?.006:.01;
+  S.ers=Math.max(5,Math.min(100,S.ers+(S.throttle<20?0.02:-ersDrain)));
+
+  // Tire drift
+  ['FL','FR','RL','RR'].forEach((p,i)=>{
+    const bias=[-.48,-.48,-.49,-.47][i];
+    S.tireTemps[p]+=(Math.random()+bias)*.3;
+    if(S.tireTemps[p]>105&&Math.floor(S.raceTime/1000)%30===0)showToast(`⚠ ${p} tyre overheating!`,'warn');
+  });
+
+  // Gaps
+  S.gapAhead+=( Math.random()-.5)*.05; S.gapAhead=Math.max(.1,Math.min(5,S.gapAhead));
+  S.gapBehind+=(Math.random()-.5)*.04; S.gapBehind=Math.max(.1,Math.min(6,S.gapBehind));
+  S.deltaMs+=(Math.random()-.51)*20; S.deltaMs=Math.max(-2000,Math.min(2000,S.deltaMs));
+  S.waterTemp+=((Math.random()-.5)*.2); S.waterTemp=Math.max(78,Math.min(98,S.waterTemp));
+  S.oilTemp+=((Math.random()-.5)*.15); S.oilTemp=Math.max(95,Math.min(115,S.oilTemp));
+
+  // ── DOM UPDATES ──
+  updateRPMArc(S.rpm);
+  setText('rpmVal',Math.round(S.rpm).toLocaleString());
+  setText('speedVal',Math.round(S.speed));
+  setText('gearDisplay',S.gearTarget);
+  setText('clockDisplay',fmtRace(S.raceTime));
+  setText('currentLapTime',fmtLap(S.lapTimeMs));
+  setText('currentLapCell',fmtLap(S.lapTimeMs)+' ›');
+  setText('lastLapTime',fmtLap(S.lastLapMs));
+  setText('bestLapTime',fmtLap(S.bestLapMs));
+
+  setWidth('pedalThrottle',S.throttle);
+  setWidth('pedalBrake',S.brake);
+  setWidth('pedalClutch',S.clutch);
+  setText('pedalThrottlePct',Math.round(S.throttle)+'%');
+  setText('pedalBrakePct',Math.round(S.brake)+'%');
+  setText('pedalClutchPct',Math.round(S.clutch)+'%');
+
+  setText('fuelPct',Math.round(S.fuel)+'%');
+  setWidth('fuelBar',S.fuel);
+  setText('fuelLaps',`~${Math.round(S.fuel*0.28)} laps remaining`);
+  setText('ersPct',Math.round(S.ers)+'%');
+  setWidth('ersBar',S.ers);
+
+  ['FL','FR','RL','RR'].forEach(p=>{
+    const t=Math.round(S.tireTemps[p]);
+    setText(`tire${p}val`,t+'°');
+    document.getElementById(`tire${p}`).className=`tire-item ${tireClass(t)}`;
+    document.getElementById(`tire${p}val`).style.color=tireColor(t);
+  });
+
+  setText('waterTemp',Math.round(S.waterTemp)+'°C');
+  setWidth('waterBar',(S.waterTemp-60)/60*100);
+  setText('oilTemp',Math.round(S.oilTemp)+'°C');
+  setWidth('oilBar',(S.oilTemp-80)/60*100);
+  document.getElementById('waterTemp').style.color=S.waterTemp>93?'var(--warn)':'var(--bmw-blue-bright)';
+  document.getElementById('oilTemp').style.color=S.oilTemp>108?'var(--alert)':'var(--warn)';
+
+  setText('gapAhead','+'+S.gapAhead.toFixed(1)+'s');
+  setText('gapBehind','−'+S.gapBehind.toFixed(1)+'s');
+
+  const d=S.deltaMs, dEl=document.getElementById('deltaVal');
+  if(d<0){
+    dEl.textContent='−'+fmtLap(Math.abs(d)); dEl.className='delta-val neg';
+    setWidth('deltaFillNeg',Math.min(Math.abs(d)/2000*50,50));
+    setWidth('deltaFillPos',0);
+  } else {
+    dEl.textContent='+'+fmtLap(d); dEl.className='delta-val pos';
+    setWidth('deltaFillPos',Math.min(d/2000*50,50));
+    setWidth('deltaFillNeg',0);
+  }
+
+  // Sector progress (S1 done, S2 done, S3 in progress)
+  const lapFrac=S.lapTimeMs/93500;
+  if(lapFrac<0.3){
+    setWidth('seg1fill',lapFrac/0.3*100);
+    setWidth('seg2fill',0); setWidth('seg3fill',0);
+    document.getElementById('seg1fill').style.background='var(--ok)';
+    setText('sec1t','—'); setText('sec2t','—'); setText('sec3t','—');
+  } else if(lapFrac<0.65){
+    setWidth('seg1fill',100); setWidth('seg2fill',(lapFrac-0.3)/0.35*100);
+    document.getElementById('seg2fill').style.background='var(--warn)';
+    setWidth('seg3fill',0);
+    setText('sec1t',fmtLap(93500*0.3).replace('0:',''));
+  } else {
+    setWidth('seg1fill',100); setWidth('seg2fill',100);
+    setWidth('seg3fill',(lapFrac-0.65)/0.35*100);
+    document.getElementById('seg3fill').style.background='var(--purple)';
+    setText('sec3t','—');
+  }
+
+  // Flags
+  document.getElementById('flagDRS').className=S.drsActive?'flag-chip active-drs':'flag-chip inactive';
+  document.getElementById('flagYellow').className=S.yellowFlag?'flag-chip active-yellow':'flag-chip inactive';
+  document.getElementById('flagSC').className=S.sc?'flag-chip active-sc':'flag-chip inactive';
+  document.getElementById('flagGreen').className=S.greenFlag&&!S.yellowFlag&&!S.sc?'flag-chip active-green':'flag-chip inactive';
+
+  // Pit/mode button states
+  document.getElementById('btnPitIn').className=S.pitMode?'pit-btn pit-active':'pit-btn';
+  document.getElementById('btnDRS').className=S.drsActive?'pit-btn pit-active':'pit-btn';
+  document.getElementById('btnFastLap').className=S.pushMode?'pit-btn pit-active':'pit-btn';
+  document.getElementById('btnSave').className=S.saveMode?'pit-btn pit-active':'pit-btn';
+
+  drawGForce(S.gx,S.gy);
+  updateTrackDot(dt);
+}
+
+// ══════════════════════════════════════════════════════════
+// INTERACTIVE CONTROLS
+// ══════════════════════════════════════════════════════════
+function setText(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
+function setWidth(id,v){const el=document.getElementById(id);if(el)el.style.width=v+'%';}
+
+function togglePause(){
+  S.paused=!S.paused;
+  const btn=document.getElementById('btnPlayPause');
+  const dot=document.getElementById('statusDot');
+  const lbl=document.getElementById('statusLabel');
+  if(S.paused){
+    btn.textContent='▶ RESUME'; btn.className='hbtn primary';
+    dot.className='status-dot paused'; lbl.textContent='PAUSED'; lbl.className='status-label paused';
+    showToast('Telemetry paused','warn');
+  } else {
+    btn.textContent='⏸ PAUSE'; btn.className='hbtn active';
+    dot.className='status-dot'; lbl.textContent='LIVE'; lbl.className='status-label';
+    showToast('Telemetry resumed','ok');
+    lastTime=performance.now();
+  }
+}
+
+function nextScenario(){
+  scenarioIndex=(scenarioIndex+1)%SCENARIOS.length;
+  S.scenario=SCENARIOS[scenarioIndex];
+  S.scenarioTimer=0;
+  const names={accel:'Full Acceleration',brake:'Braking Zone',corner_l:'Left Corner',corner_r:'Right Corner',cruising:'Straight Cruise',pitstop_prep:'Pit Stop Prep'};
+  showToast(`Scenario: ${names[S.scenario]}`,'info');
+}
+
+function triggerPitRadio(){
+  if(S.radioActive)return;
+  S.radioActive=true;
+  document.getElementById('btnPitRadio').className='hbtn radio-active';
+  const msgs=['Engineer: "You\'re P3, gap ahead 2.4s — push!"','Engineer: "Box next lap. Tyres dropping off."','Engineer: "DRS available, commit to the outside."','Engineer: "Watch sector 2, there\'s a yellow."','Engineer: "Fuel saving mode now, mode 3."'];
+  showToast(msgs[Math.floor(Math.random()*msgs.length)],'info',3500);
+  setTimeout(()=>{
+    S.radioActive=false;
+    document.getElementById('btnPitRadio').className='hbtn';
+  },3500);
+}
+
+function toggleFlag(type){
+  if(type==='drs'){S.drsActive=!S.drsActive;showToast(S.drsActive?'DRS Enabled':'DRS Disabled',S.drsActive?'info':'warn');}
+  else if(type==='yellow'){
+    S.yellowFlag=!S.yellowFlag;
+    if(S.yellowFlag){S.greenFlag=false;S.sc=false;showToast('⚠ Yellow Flag — No Overtaking','warn');}
+    else{S.greenFlag=true;showToast('Green Flag — Go, Go, Go!','ok');}
+  }
+  else if(type==='sc'){
+    S.sc=!S.sc;
+    if(S.sc){S.yellowFlag=false;S.greenFlag=false;showToast('Safety Car deployed','warn');}
+    else{S.greenFlag=true;showToast('Safety Car in — racing resumes!','ok');}
+  }
+  else if(type==='green'){S.greenFlag=true;S.yellowFlag=false;S.sc=false;showToast('Green Flag — Go, Go, Go!','ok');}
+}
+
+function triggerPitIn(){
+  S.pitMode=!S.pitMode;
+  if(S.pitMode){
+    S.scenario='pitstop_prep'; S.scenarioTimer=0;
+    showToast('🔧 Pit window open — box box box!','warn');
+  } else {
+    showToast('Pit cancelled — stay out','info');
+  }
+}
+
+function toggleDRS(){
+  S.drsActive=!S.drsActive;
+  showToast(S.drsActive?'DRS Enabled ↑':'DRS Disabled',S.drsActive?'info':'warn');
+}
+
+function setFastLap(){
+  S.saveMode=false; S.pushMode=!S.pushMode;
+  if(S.pushMode){showToast('⚡ Push mode — attack mode!','ok');}
+  else{showToast('Normal mode','info');}
+}
+
+function setSaveMode(){
+  S.pushMode=false; S.saveMode=!S.saveMode;
+  if(S.saveMode){showToast('🛡 Fuel & tyre saving mode','warn');}
+  else{showToast('Normal mode','info');}
+}
+
+function setERS(mode){
+  S.ersMode=mode;
+  ['Low','Med','High','OT'].forEach(m=>{
+    const el=document.getElementById('ers'+m.replace('/',''));
+    if(el)el.className='ers-btn';
+  });
+  const map={LOW:'ersLow',MED:'ersMed',HIGH:'ersHigh',OT:'ersOT'};
+  document.getElementById(map[mode]).className='ers-btn active';
+  const labels={LOW:'Conserve mode — ERS low',MED:'ERS medium deploy',HIGH:'High ERS deploy',OT:'Overtake mode — full ERS!'};
+  showToast(labels[mode],'info');
+}
+
+function addLapRow(){
+  const tbody=document.getElementById('lapHistoryTable');
+  const rows=tbody.querySelectorAll('tr');
+  rows.forEach(r=>r.className='');
+  if(rows.length>5)rows[0].remove();
+  const tr=document.createElement('tr');
+  tr.className='current-lap';
+  const isB=S.lastLapMs<=S.bestLapMs;
+  if(isB){tbody.querySelectorAll('tr.best').forEach(r=>r.className='');tr.className='best';}
+  tr.innerHTML=`<td>L${S.lapCount-1}</td><td>${fmtLap(S.lastLapMs)}${isB?' ★':''}</td>`;
+  const newCurrent=document.createElement('tr');
+  newCurrent.className='current-lap';
+  newCurrent.innerHTML=`<td>L${S.lapCount}</td><td id="currentLapCell">0:00.00 ›</td>`;
+  tbody.appendChild(tr);
+  tbody.appendChild(newCurrent);
+}
+
+// ══════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════
+function showToast(msg,type='info',dur=2400){
+  const container=document.getElementById('toastContainer');
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.textContent=msg;
+  container.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(14px)';t.style.transition='all .3s';setTimeout(()=>t.remove(),300);},dur);
+}
+
+// ══════════════════════════════════════════════════════════
+// BOOKING MODAL
+// ══════════════════════════════════════════════════════════
+const booking={
+  step:1, pkg:null, date:null, slot:null,
+  name:'', email:'', phone:'', experience:'intermediate',
+  calYear:null, calMonth:null,
+};
+const PACKAGES=[
+  {id:'intro',name:'Track Intro',car:'BMW M240i xDrive',price:2800,badge:null,features:['2 laps guided','Safety briefing','Helmet & suit','Instructor onboard','Track photography']},
+  {id:'hot',name:'Hot Lap',car:'BMW M3 Competition',price:5500,badge:{label:'Popular',cls:'popular'},features:['5 hot laps solo','Data analysis session','Telemetry debrief','Helmet & HANS device','In-car video footage']},
+  {id:'gt3',name:'GT3 Experience',car:'BMW M4 GT3',price:14900,badge:{label:'Elite',cls:'elite'},features:['8 laps full GT3','Engineer-led debrief','Full telemetry overlay','Fire suit & helmet','Race team pit lane access']},
+];
+const TIME_SLOTS=[
+  {time:'07:00',avail:'open',label:'Open'},
+  {time:'08:30',avail:'few',label:'2 left'},
+  {time:'10:00',avail:'booked',label:'Full'},
+  {time:'11:30',avail:'open',label:'Open'},
+  {time:'13:00',avail:'few',label:'1 left'},
+  {time:'14:30',avail:'open',label:'Open'},
+  {time:'16:00',avail:'booked',label:'Full'},
+];
+
+function openBooking(){
+  booking.step=1; booking.pkg=null; booking.date=null; booking.slot=null;
+  booking.name=''; booking.email=''; booking.phone=''; booking.experience='intermediate';
+  const now=new Date(); booking.calYear=now.getFullYear(); booking.calMonth=now.getMonth();
+  document.getElementById('bookingOverlay').classList.remove('hidden');
+  renderBooking();
+}
+function closeBooking(){document.getElementById('bookingOverlay').classList.add('hidden');}
+function handleOverlayClick(e){if(e.target===document.getElementById('bookingOverlay'))closeBooking();}
+
+function renderBooking(){
+  renderSteps();
+  const body=document.getElementById('modalBody');
+  const footer=document.getElementById('modalFooter');
+  body.innerHTML='';footer.innerHTML='';
+  if(booking.step===1)renderPackages(body,footer);
+  else if(booking.step===2)renderDateTime(body,footer);
+  else if(booking.step===3)renderDriverForm(body,footer);
+  else if(booking.step===4)renderSummary(body,footer);
+  else if(booking.step===5)renderConfirmation(body,footer);
+}
+
+function renderSteps(){
+  const steps=[{n:1,label:'Package'},{n:2,label:'Date & Time'},{n:3,label:'Driver Info'},{n:4,label:'Confirm'}];
+  // Steps shown in header area but we'll inject before body
+}
+
+function stepsHTML(){
+  const steps=[{n:1,label:'Package'},{n:2,label:'Date & Time'},{n:3,label:'Driver Info'},{n:4,label:'Confirm'}];
+  let h='<div class="booking-steps">';
+  steps.forEach((st,i)=>{
+    const done=booking.step>st.n,active=booking.step===st.n;
+    h+=`<div class="step-item">
+      <div class="step-dot ${done?'done':active?'active':''}">${done?'✓':st.n}</div>
+      <span class="step-label ${active?'active':''}">${st.label}</span>
+    </div>`;
+    if(i<steps.length-1)h+=`<div class="step-line ${done?'done':''}"></div>`;
+  });
+  h+='</div>';
+  return h;
+}
+
+function renderPackages(body,footer){
+  body.innerHTML=stepsHTML()+`
+    <p style="font-size:12px;color:var(--muted);margin-bottom:16px;letter-spacing:.04em">Choose your Kyalami BMW driving experience. All packages include full safety equipment and a pre-drive briefing.</p>
+    <div class="package-grid">
+      ${PACKAGES.map(p=>`
+        <div class="pkg-card ${booking.pkg===p.id?'selected':''}" onclick="selectPackage('${p.id}')">
+          ${p.badge?`<div class="pkg-badge ${p.badge.cls}">${p.badge.label}</div>`:'<div style="height:20px"></div>'}
+          <div class="pkg-name">${p.name}</div>
+          <div class="pkg-car">${p.car}</div>
+          <div class="pkg-price">R${p.price.toLocaleString()}</div>
+          <ul class="pkg-features">${p.features.map(f=>`<li>${f}</li>`).join('')}</ul>
+        </div>
+      `).join('')}
+    </div>`;
+  footer.innerHTML=`
+    <button class="mbtn secondary" onclick="closeBooking()">Cancel</button>
+    <button class="mbtn primary" onclick="nextStep()" ${!booking.pkg?'disabled':''} id="btnNext">Next →</button>`;
+}
+
+function selectPackage(id){
+  booking.pkg=id;
+  renderPackages(document.getElementById('modalBody'),document.getElementById('modalFooter'));
+}
+
+function renderDateTime(body,footer){
+  const now=new Date(), y=booking.calYear, m=booking.calMonth;
+  const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const first=new Date(y,m,1).getDay();
+  const days=new Date(y,m+1,0).getDate();
+  const today=new Date();
+  let calHTML='<div class="cal-grid">';
+  ['SU','MO','TU','WE','TH','FR','SA'].forEach(d=>calHTML+=`<div class="cal-day-label">${d}</div>`);
+  for(let i=0;i<first;i++)calHTML+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=days;d++){
+    const dt=new Date(y,m,d);
+    const isPast=dt<new Date(today.getFullYear(),today.getMonth(),today.getDate());
+    const isToday=d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
+    const isSelected=booking.date===`${y}-${m+1}-${d}`;
+    const isWeekend=dt.getDay()===0||dt.getDay()===6;
+    const hasSlots=!isPast&&(d%3!==0);
+    calHTML+=`<div class="cal-day ${isPast?'past':''} ${isToday?'today':''} ${isSelected?'selected':''} ${hasSlots?'has-slots':''}"
+      onclick="${isPast||!hasSlots?'':''}" style="cursor:${isPast||!hasSlots?'default':'pointer'}"
+      ${!isPast&&hasSlots?`onclick="selectDate('${y}-${m+1}-${d}')"`:''}>${d}</div>`;
+  }
+  calHTML+='</div>';
+
+  body.innerHTML=stepsHTML()+`
+    <div class="cal-row">
+      <div class="cal-wrap">
+        <div class="cal-header">
+          <button class="cal-nav" onclick="calNav(-1)">‹</button>
+          <span class="cal-title">${monthNames[m]} ${y}</span>
+          <button class="cal-nav" onclick="calNav(1)">›</button>
+        </div>
+        ${calHTML}
+        <p style="font-size:10px;color:var(--muted);margin-top:10px;letter-spacing:.05em">● Available dates shown with green dot</p>
+      </div>
+      <div class="slots-wrap">
+        <div class="slots-title">${booking.date?'Available Times':'Select a date'}</div>
+        <div class="slots-grid">
+          ${booking.date?TIME_SLOTS.map(sl=>`
+            <div class="time-slot ${sl.avail==='booked'?'booked':''} ${booking.slot===sl.time?'selected':''}"
+              onclick="${sl.avail!=='booked'?`selectSlot('${sl.time}')`:''}">
+              <span class="slot-time">${sl.time}</span>
+              <span class="slot-avail ${sl.avail}">${sl.label}</span>
+            </div>`).join(''):'<p style="color:var(--muted);font-size:12px;padding:8px 0">Pick a date on the calendar to see available time slots.</p>'}
+        </div>
+      </div>
+    </div>`;
+  footer.innerHTML=`
+    <button class="mbtn secondary" onclick="prevStep()">← Back</button>
+    <button class="mbtn primary" onclick="nextStep()" ${!booking.date||!booking.slot?'disabled':''}>Next →</button>`;
+}
+
+function calNav(dir){
+  booking.calMonth+=dir;
+  if(booking.calMonth<0){booking.calMonth=11;booking.calYear--;}
+  if(booking.calMonth>11){booking.calMonth=0;booking.calYear++;}
+  renderBooking();
+}
+function selectDate(d){booking.date=d;booking.slot=null;renderBooking();}
+function selectSlot(t){booking.slot=t;renderBooking();}
+
+function renderDriverForm(body,footer){
+  body.innerHTML=stepsHTML()+`
+    <p style="font-size:12px;color:var(--muted);margin-bottom:16px;letter-spacing:.04em">Enter your details below. All information is used solely for booking and safety briefing purposes.</p>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">First Name</label>
+        <input class="form-input" type="text" placeholder="e.g. Marco" id="inp_fname" value="${booking.name.split(' ')[0]||''}" oninput="booking.fname=this.value">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last Name</label>
+        <input class="form-input" type="text" placeholder="e.g. Laubscher" id="inp_lname" value="${booking.name.split(' ')[1]||''}" oninput="booking.lname=this.value">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" placeholder="driver@kyalami.co.za" id="inp_email" value="${booking.email}" oninput="booking.email=this.value">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mobile Number</label>
+        <input class="form-input" type="tel" placeholder="+27 82 000 0000" id="inp_phone" value="${booking.phone}" oninput="booking.phone=this.value">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Licence Type</label>
+        <select class="form-input" id="inp_licence">
+          <option value="code10">Code 10 (Car)</option>
+          <option value="code14">Code 14 (Heavy)</option>
+          <option value="international">International</option>
+          <option value="none">None — Guest / Observer</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Emergency Contact</label>
+        <input class="form-input" type="text" placeholder="Name & number" id="inp_emerg">
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Driving Experience Level</label>
+        <div class="experience-row">
+          <div class="exp-btn ${booking.experience==='novice'?'selected':''}" onclick="setExp('novice')">Novice</div>
+          <div class="exp-btn ${booking.experience==='intermediate'?'selected':''}" onclick="setExp('intermediate')">Intermediate</div>
+          <div class="exp-btn ${booking.experience==='advanced'?'selected':''}" onclick="setExp('advanced')">Advanced</div>
+          <div class="exp-btn ${booking.experience==='racer'?'selected':''}" onclick="setExp('racer')">Club Racer</div>
+        </div>
+      </div>
+    </div>`;
+  footer.innerHTML=`
+    <button class="mbtn secondary" onclick="prevStep()">← Back</button>
+    <button class="mbtn primary" onclick="collectFormAndNext()">Review Booking →</button>`;
+}
+
+function setExp(e){booking.experience=e;renderBooking();}
+
+function collectFormAndNext(){
+  const fn=document.getElementById('inp_fname')?.value.trim()||'';
+  const ln=document.getElementById('inp_lname')?.value.trim()||'';
+  const em=document.getElementById('inp_email')?.value.trim()||'';
+  const ph=document.getElementById('inp_phone')?.value.trim()||'';
+  if(!fn||!ln){showToast('Please enter your full name','warn');return;}
+  if(!em||!em.includes('@')){showToast('Please enter a valid email','warn');return;}
+  booking.name=fn+' '+ln; booking.email=em; booking.phone=ph;
+  nextStep();
+}
+
+function renderSummary(body,footer){
+  const pkg=PACKAGES.find(p=>p.id===booking.pkg);
+  const dateObj=booking.date?new Date(booking.date.replace(/(\d+)-(\d+)-(\d+)/,'$1/$2/$3')):null;
+  const dateStr=dateObj?dateObj.toLocaleDateString('en-ZA',{weekday:'long',year:'numeric',month:'long',day:'numeric'}):'—';
+  body.innerHTML=stepsHTML()+`
+    <div class="summary-card">
+      <div class="summary-row"><span class="summary-key">Package</span><span class="summary-val">${pkg?.name}</span></div>
+      <div class="summary-row"><span class="summary-key">Vehicle</span><span class="summary-val">${pkg?.car}</span></div>
+      <div class="summary-row"><span class="summary-key">Date</span><span class="summary-val">${dateStr}</span></div>
+      <div class="summary-row"><span class="summary-key">Time</span><span class="summary-val">${booking.slot}</span></div>
+      <div class="summary-row"><span class="summary-key">Driver</span><span class="summary-val">${booking.name||'—'}</span></div>
+      <div class="summary-row"><span class="summary-key">Email</span><span class="summary-val">${booking.email||'—'}</span></div>
+      <div class="summary-row"><span class="summary-key">Experience</span><span class="summary-val" style="text-transform:capitalize">${booking.experience}</span></div>
+    </div>
+    <div class="summary-total">
+      <span class="summary-total-label">Total Due</span>
+      <span class="summary-total-val">R${pkg?.price.toLocaleString()}</span>
+    </div>
+    <p class="terms-text">By confirming this booking you agree to the Kyalami BMW Experience terms and conditions, waiver of liability, and mandatory safety briefing attendance. Full payment is processed at the circuit on the day. Cancellations must be made 48 hours in advance. Kyalami Grand Prix Circuit — 1 Kyalami Boulevard, Midrand, Johannesburg.</p>`;
+  footer.innerHTML=`
+    <button class="mbtn secondary" onclick="prevStep()">← Back</button>
+    <button class="mbtn confirm" onclick="confirmBooking()">✓ Confirm Booking</button>`;
+}
+
+function confirmBooking(){
+  booking.step=5;
+  renderBooking();
+  showToast('Booking confirmed! Check your email.','ok',4000);
+}
+
+function renderConfirmation(body,footer){
+  const ref='KYA-'+Math.floor(Math.random()*90000+10000)+'-BMW';
+  const pkg=PACKAGES.find(p=>p.id===booking.pkg);
+  body.innerHTML=stepsHTML()+`
+    <div class="confirm-screen">
+      <div class="confirm-icon">🏁</div>
+      <div class="confirm-title">Booking Confirmed!</div>
+      <p class="confirm-sub">
+        Your Kyalami BMW ${pkg?.name} experience is booked for <strong>${booking.slot}</strong>.<br>
+        A confirmation has been sent to <strong>${booking.email}</strong>.<br><br>
+        Arrive 30 minutes early for safety briefing and suit fitting.
+      </p>
+      <div class="confirm-ref">${ref}</div>
+      <p style="font-size:11px;color:var(--muted);margin-top:12px">Keep this reference number for check-in on the day.</p>
+    </div>`;
+  footer.innerHTML=`<button class="mbtn primary" onclick="closeBooking()">Close</button>`;
+}
+
+function nextStep(){if(booking.step<5)booking.step++;renderBooking();}
+function prevStep(){if(booking.step>1)booking.step--;renderBooking();}
+
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
+initRPMArc();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
