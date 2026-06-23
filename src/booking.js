@@ -61,6 +61,15 @@ function isWithinTrackBorders(latitude, longitude) {
            (longitude >= minLng && longitude <= maxLng);
 }
 
+export const ValidateRaceSlot = (requestedSlot, ExistingBookings) => {
+	 if (!requestedSlot) {
+        throw new Error("Critical Parameter Missing: Invalid track query.");
+    }
+    const isConflict = existingBookings.includes(requestedSlot);
+    return !isConflict; // Returns true if the track time slot is wide open and safe
+};
+
+
 module.exports = {
     processTrackBooking,
     isWithinTrackBorders,
