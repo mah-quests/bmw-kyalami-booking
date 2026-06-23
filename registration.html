@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kyalami Registration</title>
+  <style>
+    :root {
+      --bg: #0e1110;
+      --panel: rgba(20, 25, 22, 0.92);
+      --panel-2: rgba(255, 255, 255, 0.05);
+      --text: #f3f4ef;
+      --muted: #b7bcb3;
+      --accent: #d9b25f;
+      --accent-2: #66c18c;
+      --border: rgba(255, 255, 255, 0.12);
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(217, 178, 95, 0.22), transparent 34%),
+        radial-gradient(circle at 85% 20%, rgba(102, 193, 140, 0.18), transparent 30%),
+        linear-gradient(145deg, #09100d 0%, #101713 48%, #151b16 100%);
+    }
+
+    .shell {
+      width: min(1120px, calc(100% - 32px));
+      margin: 24px auto;
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .brand, .form-card, .preview {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 24px;
+    }
+
+    .brand {
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand::after {
+      content: "";
+      position: absolute;
+      inset: auto -30px -45px auto;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(217,178,95,0.25), transparent 68%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+      font-size: 0.92rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      box-shadow: 0 0 18px rgba(102,193,140,0.7);
+    }
+
+    h1 {
+      margin: 18px 0 12px;
+      font-size: clamp(2.3rem, 4vw, 4.5rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+
+    .lead {
+      max-width: 56ch;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 1.02rem;
+      margin-bottom: 26px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 16px;
+      border-radius: 18px;
+      background: var(--panel-2);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .form-card {
+      padding: 24px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .form-card h2, .preview h2 {
+      margin: 0 0 4px;
+      font-size: 1.3rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 14px 14px;
+      outline: none;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(217,178,95,0.8);
+      box-shadow: 0 0 0 3px rgba(217,178,95,0.15);
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, var(--accent), #f0cf84);
+      color: #111;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+    }
+
+    .ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .preview-wrap {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .preview {
+      padding: 24px;
+    }
+
+    .preview dl {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 18px;
+      margin: 16px 0 0;
+    }
+
+    .preview dt {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+    }
+
+    .preview dd {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(102,193,140,0.12);
+      color: #d6f4e1;
+      border: 1px solid rgba(102,193,140,0.22);
+    }
+
+    .badge::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-2);
+    }
+
+    .fine-print {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 860px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .stats,
+      .form-grid,
+      .preview dl {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <article class="brand">
+        <div class="eyebrow"><span></span> Kyalami Registration</div>
+        <h1>Reserve your track session with a clean, fast sign-up flow.</h1>
+        <p class="lead">
+          Register drivers, choose a race slot, and capture vehicle details in one focused view.
+          This page is a simple front-end mockup that matches the booking sandbox style.
+        </p>
+
+        <div class="stats">
+          <div class="stat">
+            <strong>24h</strong>
+            <span>time slot format</span>
+          </div>
+          <div class="stat">
+            <strong>25</strong>
+            <span>cars on track max</span>
+          </div>
+          <div class="stat">
+            <strong>Live</strong>
+            <span>booking preview</span>
+          </div>
+        </div>
+      </article>
+
+      <form class="form-card" id="registrationForm">
+        <div>
+          <h2>Driver Registration</h2>
+          <div class="fine-print">Fields marked below are enough to simulate a booking request.</div>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label for="driver">Driver name</label>
+            <input id="driver" name="driver" type="text" placeholder="Thato Mohono" required />
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="driver@example.com" required />
+          </div>
+          <div>
+            <label for="slot">Preferred time slot</label>
+            <input id="slot" name="slot" type="time" required />
+          </div>
+          <div>
+            <label for="car">Car model</label>
+            <select id="car" name="car" required>
+              <option value="">Select a vehicle</option>
+              <option>BMW M4 Competition</option>
+              <option>BMW M5 CS</option>
+              <option>BMW M2 Coupé</option>
+              <option>BMW X5 M</option>
+            </select>
+          </div>
+          <div class="full">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes" placeholder="Helmet size, setup request, or special requirements"></textarea>
+          </div>
+          <div class="full">
+            <label>
+              <input id="consent" type="checkbox" required style="width:auto; margin-right:10px; vertical-align:middle;" />
+              I confirm the details are correct and want to reserve this slot.
+            </label>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit">Create registration</button>
+          <button type="reset" class="ghost">Clear form</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="preview-wrap">
+      <article class="preview">
+        <h2>Booking Preview</h2>
+        <div class="fine-print">This updates when the form is submitted.</div>
+        <dl>
+          <div>
+            <dt>Driver</dt>
+            <dd id="previewDriver">Awaiting input</dd>
+          </div>
+          <div>
+            <dt>Slot</dt>
+            <dd id="previewSlot">--:--</dd>
+          </div>
+          <div>
+            <dt>Car</dt>
+            <dd id="previewCar">No vehicle selected</dd>
+          </div>
+          <div>
+            <dt>Status</dt>
+            <dd id="previewStatus">Not submitted</dd>
+          </div>
+        </dl>
+        <div class="badge" id="previewBadge">Ready for registration</div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('registrationForm');
+    const previewDriver = document.getElementById('previewDriver');
+    const previewSlot = document.getElementById('previewSlot');
+    const previewCar = document.getElementById('previewCar');
+    const previewStatus = document.getElementById('previewStatus');
+    const previewBadge = document.getElementById('previewBadge');
+
+    const simulateRegistration = (registrationData) => {
+      if (!registrationData.driver || !registrationData.email || !registrationData.slot || !registrationData.car) {
+        return { success: false, error: 'INVALID_REGISTRATION_DATA' };
+      }
+
+      return {
+        success: true,
+        message: 'REGISTRATION_DRAFT_CREATED',
+        record: {
+          registrationId: `REG-${Date.now().toString(36).toUpperCase()}`,
+          ...registrationData
+        }
+      };
+    };
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const registrationData = {
+        driver: document.getElementById('driver').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        slot: document.getElementById('slot').value,
+        car: document.getElementById('car').value,
+        notes: document.getElementById('notes').value.trim(),
+        consent: document.getElementById('consent').checked
+      };
+
+      const result = simulateRegistration(registrationData);
+
+      if (!result.success) {
+        previewStatus.textContent = result.error;
+        previewBadge.textContent = 'Registration blocked';
+        return;
+      }
+
+      previewDriver.textContent = result.record.driver || 'Unknown driver';
+      previewSlot.textContent = result.record.slot || '--:--';
+      previewCar.textContent = result.record.car || 'No vehicle selected';
+      previewStatus.textContent = result.message;
+      previewBadge.textContent = result.record.registrationId;
+    });
+
+    form.addEventListener('reset', () => {
+      previewDriver.textContent = 'Awaiting input';
+      previewSlot.textContent = '--:--';
+      previewCar.textContent = 'No vehicle selected';
+      previewStatus.textContent = 'Not submitted';
+      previewBadge.textContent = 'Ready for registration';
+    });
+  </script>
+</body>
+</html>

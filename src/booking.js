@@ -3,11 +3,22 @@
  * Architectural Goal: Validate time slots and prevent concurrent duplicate bookings.
  */
 
+export const validateRaceSlot = (requestedSlot, existingBookings) => {
+    if (!requestedSlot) {
+        throw new Error("Critical Parameter Missing: Invalid track query.");
+    }
+    const isConflict = existingBookings.includes(requestedSlot);
+    return !isConflict; // Returns true if the track time slot is wide open and safe
+};
+
 // Simulated internal database array tracking existing track reservations
 const databaseRegistry = [
     { id: 1, driver: "Thato Mohono", timeSlot: "10:00", car: "BMW M4 Competition" },
     { id: 2, driver: "Yongama Sobambela", timeSlot: "11:30", car: "BMW M5 CS" },
-    { id: 2, driver: "Sibusiso Makhoba", timeSlot: "00:30", car: "BMW M5 CS" }
+    { id: 5, driver: "Sibusiso Makhoba", timeSlot: "00:30", car: "BMW M5 CS" },
+    { id: 4, driver: "Tia Naidoo", timeSlot: "11:30", car: "BMW M5 CS" },
+    { id: 3, driver: "Michael Bougardt", timeSlot: "13:00", car: "ToyotA Auris Xr" }
+
 ];
 
 /**
@@ -33,7 +44,14 @@ function processTrackBooking(payload) {
 			message: `Execution blocked. Time slot ${payload.timeSlot} is already allocated to another vehicle asset.`
 		};
 	}
-
+	//added in the new method 
+	export const validateRaceSlot = (requestedSlot, existingBookings) => {
+		if (!requestedSlot) {
+			throw new Error("Critical Parameter Missing: Invalid track query.");
+		}
+		const isConflict = existingBookings.includes(requestedSlot);
+		return !isConflict; // Returns true if the track time slot is wide open and safe
+	};
 	// Instantiating a valid tracking object record if all checks clear
 	const newBooking = {
 		id: databaseRegistry.length + 1,
@@ -75,3 +93,14 @@ module.exports = {
     isWithinTrackBorders,
     databaseRegistry
 };
+
+/**Added by Engel Ranelani*/
+/** Validation function to check if a requested race slot is available against existing bookings */
+export const validateRaceSlot = (requestedSlot, existingBookings) => {
+    if (!requestedSlot) {
+        throw new Error("Critical Parameter Missing: Invalid track query.");
+    }
+    const isConflict = existingBookings.includes(requestedSlot);
+    return !isConflict; // Returns true if the track time slot is wide open and safe
+};
+   
