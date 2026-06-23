@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BMW Kyalami Racetrack — Book Event</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0d0d0d;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 64px;
+      background: #111;
+      border-bottom: 1px solid #222;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bmw-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #1C69D4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 13px;
+      color: #1C69D4;
+      letter-spacing: 1px;
+    }
+
+    .nav-logo span {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #fff;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #aaa;
+      text-decoration: none;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: #fff; }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .nav-icon {
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 18px;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+    }
+
+    .nav-icon:hover { color: #fff; }
+
+    .badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #1C69D4;
+      color: #fff;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      font-size: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #1C69D4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* PAGE LAYOUT */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #777;
+      text-decoration: none;
+      font-size: 13px;
+      margin-bottom: 28px;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover { color: #fff; }
+
+    /* PAGE HEADER */
+    .page-header {
+      margin-bottom: 32px;
+    }
+
+    .page-header p {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #1C69D4;
+      margin-bottom: 8px;
+    }
+
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .page-header span {
+      font-size: 13px;
+      color: #666;
+      margin-top: 6px;
+      display: block;
+    }
+
+    /* PROGRESS STEPS */
+    .steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 36px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: #555;
+    }
+
+    .step.active { color: #fff; }
+    .step.done { color: #1C69D4; }
+
+    .step-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .step.active .step-circle {
+      background: #1C69D4;
+      border-color: #1C69D4;
+      color: #fff;
+    }
+
+    .step.done .step-circle {
+      background: #0a2a0a;
+      border-color: #1C69D4;
+      color: #1C69D4;
+    }
+
+    .step-line {
+      flex: 1;
+      height: 1px;
+      background: #222;
+      margin: 0 12px;
+    }
+
+    .step-line.done { background: #1C69D4; }
+
+    /* FORM CARD */
+    .form-card {
+      background: #141414;
+      border: 1px solid #222;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .form-card-header {
+      background: linear-gradient(135deg, #0d1a2e, #1a2a3e);
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-bottom: 1px solid #1a2a3e;
+    }
+
+    .form-card-header span {
+      font-size: 22px;
+    }
+
+    .form-card-header div h2 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .form-card-header div p {
+      font-size: 12px;
+      color: #6a9fd8;
+      margin-top: 3px;
+    }
+
+    .form-body {
+      padding: 32px;
+    }
+
+    /* SECTION LABELS */
+    .form-section-label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #555;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #1e1e1e;
+    }
+
+    /* FIELDS */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .form-row.single {
+      grid-template-columns: 1fr;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .form-group label {
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #888;
+    }
+
+    .form-group label .required {
+      color: #1C69D4;
+      margin-left: 2px;
+    }
+
+    .form-group input,
+    .form-group select {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+      appearance: none;
+    }
+
+    .form-group select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 40px;
+    }
+
+    .form-group input::placeholder { color: #444; }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: #1C69D4;
+      background: #111;
+    }
+
+    .form-group input.error { border-color: #c82000; }
+
+    .error-msg {
+      font-size: 11px;
+      color: #c82000;
+      display: none;
+    }
+
+    .error-msg.show { display: block; }
+
+    /* UPLOAD */
+    .upload-area {
+      background: #1a1a1a;
+      border: 1px dashed #2a2a2a;
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .upload-area:hover {
+      border-color: #1C69D4;
+      background: #111;
+    }
+
+    .upload-area .upload-icon { font-size: 28px; margin-bottom: 8px; }
+
+    .upload-area p {
+      font-size: 13px;
+      color: #777;
+    }
+
+    .upload-area span {
+      font-size: 11px;
+      color: #444;
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* EVENT SUMMARY CARD */
+    .event-summary {
+      background: #1a1a1a;
+      border: 1px solid #1C69D4;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .event-summary-left h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .event-summary-left p {
+      font-size: 12px;
+      color: #777;
+    }
+
+    .event-summary-right {
+      text-align: right;
+    }
+
+    .event-summary-right .tag {
+      background: rgba(28,105,212,0.2);
+      color: #6aabff;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: inline-block;
+    }
+
+    .event-summary-right .spots {
+      font-size: 12px;
+      color: #555;
+    }
+
+    /* DIVIDER */
+    .divider {
+      height: 1px;
+      background: #1e1e1e;
+      margin: 28px 0;
+    }
+
+    /* CHECKBOX */
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #1C69D4;
+      margin-top: 2px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .checkbox-row label {
+      font-size: 13px;
+      color: #888;
+      line-height: 1.5;
+    }
+
+    .checkbox-row label a {
+      color: #1C69D4;
+      text-decoration: none;
+    }
+
+    /* FORM FOOTER */
+    .form-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 8px;
+    }
+
+    .price-summary {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .price-summary strong {
+      font-size: 22px;
+      color: #fff;
+      display: block;
+    }
+
+    .btn-submit {
+      background: #1C69D4;
+      border: none;
+      color: #fff;
+      padding: 14px 36px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-submit:hover { background: #1557b0; transform: translateY(-1px); }
+    .btn-submit:disabled { background: #2a2a2a; color: #444; cursor: not-allowed; transform: none; }
+
+    /* SUCCESS OVERLAY */
+    .success-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .success-overlay.show { display: flex; }
+
+    .success-box {
+      background: #141414;
+      border: 1px solid #222;
+      border-radius: 16px;
+      padding: 48px;
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+    }
+
+    .success-box .icon { font-size: 52px; margin-bottom: 20px; }
+
+    .success-box h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .success-box p {
+      font-size: 14px;
+      color: #777;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .success-box .ref {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-size: 13px;
+      color: #1C69D4;
+      letter-spacing: 2px;
+      margin-bottom: 28px;
+    }
+
+    .btn-done {
+      background: #1C69D4;
+      border: none;
+      color: #fff;
+      padding: 12px 32px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-done:hover { background: #1557b0; }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">
+      <div class="bmw-badge">BMW</div>
+      <span>Kyalami Racetrack</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="bmw_home.html">Events</a></li>
+      <li><a href="#">My Bookings</a></li>
+      <li><a href="#">Lap Times</a></li>
+      <li><a href="#">Fleet</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="nav-icon">
+        🔔
+        <span class="badge">3</span>
+      </button>
+      <div class="avatar">HM</div>
+    </div>
+  </nav>
+
+  <!-- PAGE -->
+  <div class="page">
+
+    <a href="bmw_home.html" class="back-link">&#8592; Back to Events</a>
+
+    <div class="page-header">
+      <p>Step 1 of 2</p>
+      <h1>Book a Race Event</h1>
+      <span>Complete the form below to secure your track slot.</span>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="steps">
+      <div class="step active">
+        <div class="step-circle">1</div>
+        <span>Driver Details</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-circle">2</div>
+        <span>Confirmation</span>
+      </div>
+    </div>
+
+    <!-- FORM CARD -->
+    <div class="form-card">
+      <div class="form-card-header">
+        <span>🏁</span>
+        <div>
+          <h2>Race Event Booking</h2>
+          <p>BMW Kyalami Grand Prix Circuit &mdash; 2026 Season</p>
+        </div>
+      </div>
+
+      <div class="form-body">
+
+        <!-- EVENT SUMMARY -->
+        <div class="event-summary">
+          <div class="event-summary-left">
+            <h3>M Track Experience</h3>
+            <p>📅 June 24, 2026 &nbsp;&nbsp; 🕐 09:00 – 13:00</p>
+          </div>
+          <div class="event-summary-right">
+            <div class="tag">M Power</div>
+            <div class="spots">4 spots remaining</div>
+          </div>
+        </div>
+
+        <form id="bookingForm" novalidate>
+
+          <!-- EVENT SELECTION -->
+          <div class="form-section-label">Event Details</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Select Event <span class="required">*</span></label>
+              <select id="eventSelect" required>
+                <option value="">Choose a track event...</option>
+                <option value="1" selected>M Track Experience — June 24, 2026</option>
+                <option value="2">Amateur Hot Laps — June 27, 2026</option>
+                <option value="4">Kyalami Night Run — July 05, 2026</option>
+                <option value="5">BMW Fleet Showcase — July 11, 2026</option>
+                <option value="6">Summer Sprint Cup — July 18, 2026</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Select Vehicle <span class="required">*</span></label>
+              <select id="vehicleSelect" required>
+                <option value="">Choose a track vehicle...</option>
+                <option value="m4">BMW M4 Competition</option>
+                <option value="m3">BMW M3 Touring</option>
+                <option value="m2">BMW M2 CS</option>
+                <option value="m5">BMW M5 xDrive</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- DRIVER INFO -->
+          <div class="form-section-label">Driver Information</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name <span class="required">*</span></label>
+              <input type="text" id="firstName" placeholder="e.g. Harmony" required />
+              <span class="error-msg" id="firstNameErr">First name is required.</span>
+            </div>
+            <div class="form-group">
+              <label>Last Name <span class="required">*</span></label>
+              <input type="text" id="lastName" placeholder="e.g. Madisha" required />
+              <span class="error-msg" id="lastNameErr">Last name is required.</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email Address <span class="required">*</span></label>
+              <input type="email" id="email" placeholder="e.g. harmony@example.com" required />
+              <span class="error-msg" id="emailErr">A valid email is required.</span>
+            </div>
+            <div class="form-group">
+              <label>Phone Number <span class="required">*</span></label>
+              <input type="tel" id="phone" placeholder="e.g. 082 000 0000" required />
+              <span class="error-msg" id="phoneErr">Phone number is required.</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Driver's License Number <span class="required">*</span></label>
+              <input type="text" id="license" placeholder="e.g. ZA-123456789" required />
+              <span class="error-msg" id="licenseErr">License number is required.</span>
+            </div>
+            <div class="form-group">
+              <label>Date of Birth <span class="required">*</span></label>
+              <input type="date" id="dob" required />
+              <span class="error-msg" id="dobErr">Date of birth is required.</span>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- DOCUMENT UPLOAD -->
+          <div class="form-section-label">Document Upload</div>
+
+          <div class="form-row single" style="margin-bottom:28px;">
+            <div class="form-group">
+              <label>Upload Driver's License <span class="required">*</span></label>
+              <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📎</div>
+                <p id="uploadLabel">Drag & drop or click to upload</p>
+                <span>Accepted formats: PDF, JPG, PNG — Max 5MB</span>
+                <input type="file" id="fileInput" accept=".pdf,.jpg,.png" style="display:none"
+                  onchange="document.getElementById('uploadLabel').textContent = this.files[0]?.name || 'Drag & drop or click to upload'" />
+              </div>
+            </div>
+          </div>
+
+          <!-- TERMS -->
+          <div class="checkbox-row">
+            <input type="checkbox" id="terms" />
+            <label for="terms">
+              I agree to the <a href="#">Terms & Conditions</a> and
+              <a href="#">Racetrack Safety Rules</a>. I confirm that all
+              information provided is accurate and that I hold a valid driver's
+              license for the vehicle selected.
+            </label>
+          </div>
+
+          <!-- FOOTER -->
+          <div class="form-footer">
+            <div class="price-summary">
+              Total Amount
+              <strong>R 2,500.00</strong>
+            </div>
+            <button type="submit" class="btn-submit" id="submitBtn">
+              Confirm Booking &#8594;
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS OVERLAY -->
+  <div class="success-overlay" id="successOverlay">
+    <div class="success-box">
+      <div class="icon">🏁</div>
+      <h2>Booking Confirmed!</h2>
+      <p>Your slot for the <strong>M Track Experience</strong> on June 24, 2026 has been secured. A confirmation email has been sent to you.</p>
+      <div class="ref">REF: KYL-2026-00847</div>
+      <a href="bmw_home.html" class="btn-done">Back to Events</a>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('bookingForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const terms = document.getElementById('terms');
+
+    function validate() {
+      let valid = true;
+
+      const fields = [
+        { id: 'firstName', errId: 'firstNameErr' },
+        { id: 'lastName',  errId: 'lastNameErr'  },
+        { id: 'email',     errId: 'emailErr'     },
+        { id: 'phone',     errId: 'phoneErr'     },
+        { id: 'license',   errId: 'licenseErr'   },
+        { id: 'dob',       errId: 'dobErr'       },
+      ];
+
+      fields.forEach(({ id, errId }) => {
+        const el = document.getElementById(id);
+        const err = document.getElementById(errId);
+        if (!el.value.trim()) {
+          el.classList.add('error');
+          err.classList.add('show');
+          valid = false;
+        } else {
+          el.classList.remove('error');
+          err.classList.remove('show');
+        }
+      });
+
+      if (!terms.checked) {
+        alert('Please accept the Terms & Conditions to continue.');
+        valid = false;
+      }
+
+      return valid;
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (validate()) {
+        document.getElementById('successOverlay').classList.add('show');
+      }
+    });
+
+    // clear error on input
+    document.querySelectorAll('input, select').forEach(el => {
+      el.addEventListener('input', () => {
+        el.classList.remove('error');
+        const err = document.getElementById(el.id + 'Err');
+        if (err) err.classList.remove('show');
+      });
+    });
+  </script>
+</body>
+</html>
