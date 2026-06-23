@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Race Day Tickets</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f0f0f;
+      color: #f0f0f0;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d0000 100%);
+      border-bottom: 3px solid #e00;
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+    header .flag { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    header h1 { font-size: 2rem; font-weight: 800; letter-spacing: 0.05em; color: #fff; }
+    header p  { color: #aaa; margin-top: 0.4rem; font-size: 0.95rem; }
+
+    /* ── Layout ── */
+    main {
+      max-width: 900px;
+      margin: 2.5rem auto;
+      padding: 0 1rem;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.5rem;
+    }
+    @media (max-width: 720px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      padding: 1.5rem;
+    }
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #e00;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    /* ── Event selector ── */
+    .event-list { display: flex; flex-direction: column; gap: 0.6rem; }
+    .event-option {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 1rem;
+      border-radius: 8px;
+      border: 2px solid #2a2a2a;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .event-option:hover  { border-color: #555; }
+    .event-option.active { border-color: #e00; background: #1f0000; }
+    .event-option input  { accent-color: #e00; width: 16px; height: 16px; cursor: pointer; }
+    .event-meta { flex: 1; }
+    .event-meta strong { display: block; font-size: 0.9rem; }
+    .event-meta span   { font-size: 0.78rem; color: #888; }
+
+    /* ── Ticket types ── */
+    .ticket-grid { display: flex; flex-direction: column; gap: 0.8rem; }
+    .ticket-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.9rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #2a2a2a;
+      background: #111;
+    }
+    .ticket-info strong { font-size: 0.9rem; display: block; }
+    .ticket-info span   { font-size: 0.78rem; color: #888; }
+    .ticket-price       { font-weight: 700; color: #f5c542; margin: 0 1.2rem; font-size: 0.95rem; min-width: 60px; text-align: right; }
+    .qty-ctrl { display: flex; align-items: center; gap: 0.5rem; }
+    .qty-ctrl button {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 1px solid #444;
+      background: #222;
+      color: #fff;
+      font-size: 1.1rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: background 0.12s;
+    }
+    .qty-ctrl button:hover { background: #e00; border-color: #e00; }
+    .qty-ctrl span { min-width: 22px; text-align: center; font-weight: 600; }
+
+    /* ── Customer form ── */
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem; }
+    .form-group label { font-size: 0.8rem; color: #999; text-transform: uppercase; letter-spacing: 0.05em; }
+    .form-group input {
+      padding: 0.65rem 0.9rem;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background: #111;
+      color: #f0f0f0;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-group input:focus { border-color: #e00; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+    /* ── Order summary ── */
+    .summary-lines { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+    .summary-line {
+      display: flex; justify-content: space-between;
+      font-size: 0.88rem; color: #ccc;
+    }
+    .summary-line.empty { color: #555; font-style: italic; justify-content: center; padding: 0.5rem 0; }
+    .summary-total {
+      display: flex; justify-content: space-between;
+      font-size: 1.05rem; font-weight: 700;
+      border-top: 1px solid #2a2a2a;
+      padding-top: 0.8rem; margin-top: 0.4rem;
+      color: #fff;
+    }
+    .summary-total span:last-child { color: #f5c542; }
+
+    /* ── Buy button ── */
+    #btn-purchase {
+      width: 100%;
+      padding: 0.9rem;
+      background: #e00;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      margin-top: 0.5rem;
+    }
+    #btn-purchase:hover   { background: #c00; }
+    #btn-purchase:active  { transform: scale(0.98); }
+    #btn-purchase:disabled { background: #444; color: #777; cursor: not-allowed; }
+
+    /* ── Success overlay ── */
+    #success {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85);
+      align-items: center; justify-content: center;
+      z-index: 100;
+    }
+    #success.show { display: flex; }
+    .success-box {
+      background: #1a1a1a;
+      border: 2px solid #e00;
+      border-radius: 12px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      max-width: 380px;
+      width: 90%;
+    }
+    .success-box .icon { font-size: 3rem; margin-bottom: 0.8rem; }
+    .success-box h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .success-box p  { color: #aaa; font-size: 0.9rem; margin-bottom: 1.5rem; }
+    .success-box button {
+      padding: 0.7rem 2rem;
+      background: #e00; color: #fff;
+      border: none; border-radius: 6px;
+      font-size: 0.95rem; font-weight: 600;
+      cursor: pointer;
+    }
+    .success-box button:hover { background: #c00; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="flag">🏁</div>
+  <h1>Race Day — Online Tickets</h1>
+  <p>Skip the queues. Buy your tickets now and go straight to the gate.</p>
+</header>
+
+<main>
+  <!-- Left column -->
+  <div style="display:flex;flex-direction:column;gap:1.5rem;">
+
+    <!-- Step 1: Choose event -->
+    <div class="card">
+      <h2>1 · Select Race Event</h2>
+      <div class="event-list" id="event-list">
+        <label class="event-option active">
+          <input type="radio" name="event" value="0" checked />
+          <div class="event-meta">
+            <strong>Grand Prix Championship — Round 4</strong>
+            <span>Saturday 28 June 2026 · Gates open 08:00</span>
+          </div>
+        </label>
+        <label class="event-option">
+          <input type="radio" name="event" value="1" />
+          <div class="event-meta">
+            <strong>Sprint Race Series — Event 7</strong>
+            <span>Sunday 29 June 2026 · Gates open 09:30</span>
+          </div>
+        </label>
+        <label class="event-option">
+          <input type="radio" name="event" value="2" />
+          <div class="event-meta">
+            <strong>Endurance Classic — 500km</strong>
+            <span>Saturday 12 July 2026 · Gates open 07:00</span>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Step 2: Ticket types -->
+    <div class="card">
+      <h2>2 · Choose Tickets</h2>
+      <div class="ticket-grid">
+        <div class="ticket-row">
+          <div class="ticket-info">
+            <strong>General Admission</strong>
+            <span>Standing areas — full track view</span>
+          </div>
+          <span class="ticket-price" data-price="150">R 150</span>
+          <div class="qty-ctrl">
+            <button type="button" data-type="general" data-action="dec">−</button>
+            <span id="qty-general">0</span>
+            <button type="button" data-type="general" data-action="inc">+</button>
+          </div>
+        </div>
+        <div class="ticket-row">
+          <div class="ticket-info">
+            <strong>Grandstand Seating</strong>
+            <span>Reserved numbered seat</span>
+          </div>
+          <span class="ticket-price" data-price="350">R 350</span>
+          <div class="qty-ctrl">
+            <button type="button" data-type="grandstand" data-action="dec">−</button>
+            <span id="qty-grandstand">0</span>
+            <button type="button" data-type="grandstand" data-action="inc">+</button>
+          </div>
+        </div>
+        <div class="ticket-row">
+          <div class="ticket-info">
+            <strong>Paddock Club</strong>
+            <span>Pit-lane access + hospitality lounge</span>
+          </div>
+          <span class="ticket-price" data-price="950">R 950</span>
+          <div class="qty-ctrl">
+            <button type="button" data-type="paddock" data-action="dec">−</button>
+            <span id="qty-paddock">0</span>
+            <button type="button" data-type="paddock" data-action="inc">+</button>
+          </div>
+        </div>
+        <div class="ticket-row">
+          <div class="ticket-info">
+            <strong>Junior (under 12)</strong>
+            <span>Must be accompanied by an adult</span>
+          </div>
+          <span class="ticket-price" data-price="75">R 75</span>
+          <div class="qty-ctrl">
+            <button type="button" data-type="junior" data-action="dec">−</button>
+            <span id="qty-junior">0</span>
+            <button type="button" data-type="junior" data-action="inc">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Customer details -->
+    <div class="card">
+      <h2>3 · Your Details</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="first-name">First name</label>
+          <input type="text" id="first-name" placeholder="Jane" autocomplete="given-name" />
+        </div>
+        <div class="form-group">
+          <label for="last-name">Last name</label>
+          <input type="text" id="last-name" placeholder="Smith" autocomplete="family-name" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="email" id="email" placeholder="jane@example.com" autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label for="phone">Mobile number</label>
+        <input type="tel" id="phone" placeholder="+27 82 000 0000" autocomplete="tel" />
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Right column: Order summary -->
+  <div style="display:flex;flex-direction:column;gap:1.5rem;">
+    <div class="card" style="position:sticky;top:1.5rem;">
+      <h2>Order Summary</h2>
+      <div class="summary-lines" id="summary-lines">
+        <p class="summary-line empty">No tickets selected yet</p>
+      </div>
+      <div class="summary-total">
+        <span>Total</span>
+        <span id="summary-total">R 0</span>
+      </div>
+      <button id="btn-purchase" disabled>Complete Purchase</button>
+      <p style="font-size:0.75rem;color:#555;text-align:center;margin-top:0.9rem;">
+        Tickets will be emailed to you as a PDF with a QR code for gate entry.
+      </p>
+    </div>
+  </div>
+</main>
+
+<!-- Success overlay -->
+<div id="success">
+  <div class="success-box">
+    <div class="icon">🎉</div>
+    <h2>Booking Confirmed!</h2>
+    <p>Your tickets are on their way. Check your inbox for the confirmation email with your QR codes.</p>
+    <button onclick="resetForm()">Back to Tickets</button>
+  </div>
+</div>
+
+<script>
+  const TICKETS = {
+    general:    { label: 'General Admission', price: 150 },
+    grandstand: { label: 'Grandstand Seating', price: 350 },
+    paddock:    { label: 'Paddock Club',       price: 950 },
+    junior:     { label: 'Junior (under 12)',  price: 75  },
+  };
+
+  const qty = { general: 0, grandstand: 0, paddock: 0, junior: 0 };
+
+  // Quantity controls
+  document.querySelector('.ticket-grid').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const type   = btn.dataset.type;
+    const action = btn.dataset.action;
+    if (action === 'inc') qty[type] = Math.min(qty[type] + 1, 10);
+    if (action === 'dec') qty[type] = Math.max(qty[type] - 1, 0);
+    document.getElementById(`qty-${type}`).textContent = qty[type];
+    updateSummary();
+  });
+
+  // Event radio highlight
+  document.getElementById('event-list').addEventListener('change', () => {
+    document.querySelectorAll('.event-option').forEach(el => {
+      el.classList.toggle('active', el.querySelector('input').checked);
+    });
+  });
+
+  function updateSummary() {
+    const lines = document.getElementById('summary-lines');
+    const btn   = document.getElementById('btn-purchase');
+    let total   = 0;
+    const rows  = [];
+
+    for (const [key, t] of Object.entries(TICKETS)) {
+      if (qty[key] > 0) {
+        const sub = qty[key] * t.price;
+        total += sub;
+        rows.push(`<div class="summary-line"><span>${t.label} × ${qty[key]}</span><span>R ${sub.toLocaleString()}</span></div>`);
+      }
+    }
+
+    lines.innerHTML = rows.length
+      ? rows.join('')
+      : '<p class="summary-line empty">No tickets selected yet</p>';
+
+    document.getElementById('summary-total').textContent = `R ${total.toLocaleString()}`;
+    btn.disabled = total === 0;
+  }
+
+  // Purchase
+  document.getElementById('btn-purchase').addEventListener('click', () => {
+    const first = document.getElementById('first-name').value.trim();
+    const last  = document.getElementById('last-name').value.trim();
+    const email = document.getElementById('email').value.trim();
+
+    if (!first || !last || !email) {
+      alert('Please fill in your first name, last name, and email address before purchasing.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+
+    document.getElementById('success').classList.add('show');
+  });
+
+  function resetForm() {
+    document.getElementById('success').classList.remove('show');
+    for (const key of Object.keys(qty)) {
+      qty[key] = 0;
+      document.getElementById(`qty-${key}`).textContent = '0';
+    }
+    document.getElementById('first-name').value = '';
+    document.getElementById('last-name').value  = '';
+    document.getElementById('email').value      = '';
+    document.getElementById('phone').value      = '';
+    updateSummary();
+  }
+</script>
+</body>
+</html>
