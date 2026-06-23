@@ -66,3 +66,10 @@ module.exports = {
     isWithinTrackBorders,
     databaseRegistry
 };
+export const validateRaceSlot = (requestedSlot, existingBookings) => {
+    if (!requestedSlot) {
+        throw new Error("Critical Parameter Missing: Invalid track query.");
+    }
+    const isConflict = existingBookings.includes(requestedSlot);
+    return !isConflict; // Returns true if the track time slot is wide open and safe
+};
