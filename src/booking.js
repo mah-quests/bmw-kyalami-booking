@@ -6,7 +6,8 @@
 // Simulated internal database array tracking existing track reservations
 const databaseRegistry = [
     { id: 1, driver: "Thato Mohono", timeSlot: "10:00", car: "BMW M4 Competition" },
-    { id: 2, driver: "Yongama Sobambela", timeSlot: "11:30", car: "BMW M5 CS" }
+    { id: 2, driver: "Yongama Sobambela", timeSlot: "11:30", car: "BMW M5 CS" },
+    { id: 3, driver: "Sibusiso Makhoba", timeSlot: "00:30", car: "BMW M17 Coupe" }
 ];
 
 /**
@@ -61,6 +62,14 @@ function isWithinTrackBorders(latitude, longitude) {
            (longitude >= minLng && longitude <= maxLng);
 }
 
+export const validateRaceSlot = (requestedSlot, existingBookings) => {
+    if (!requestedSlot) {
+        throw new Error("Critical Parameter Missing: Invalid track query.");
+    }
+    const isConflict = existingBookings.includes(requestedSlot);
+    return !isConflict; // Returns true if the track time slot is wide open and safe
+};
+
 module.exports = {
     processTrackBooking,
     isWithinTrackBorders,
@@ -74,3 +83,11 @@ export const validateRaceSlot = (requestedSlot, existingBookings) => {
     const isConflict = existingBookings.includes(requestedSlot);
     return !isConflict; // Returns true if the track time slot is wide open and safe
 };
+export const validateRaceSlot = (requestedSlot, existingBookings) => {
+    if (!requestedSlot) {
+        throw new Error("Critical Parameter Missing: Invalid track query.");
+    }
+    const isConflict = existingBookings.includes(requestedSlot);
+    return !isConflict; // Returns true if the track time slot is wide open and safe
+};
+     
