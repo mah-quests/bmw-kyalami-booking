@@ -4,7 +4,8 @@
   "description": "BMW Kyalami Booking Engine - Sandbox Simulator Environment for Derivco Graduate SDLC Training Track Block",
   "main": "src/booking.js",
   "scripts": {
-    "test:pipeline": "node workshop/ci-cd-simulator.js"
+    "test:pipeline": "node workshop/ci-cd-simulator.js",
+    "test:user-stories": "node workshop/user-stories-test.js"
   },
   "author": "Derivco Architecture Guild",
   "license": "ISC"
