@@ -15,6 +15,7 @@ export const validateRaceSlot = (requestedSlot, existingBookings) => {
 const databaseRegistry = [
     { id: 1, driver: "Thato Mohono", timeSlot: "10:00", car: "BMW M4 Competition" },
     { id: 2, driver: "Yongama Sobambela", timeSlot: "11:30", car: "BMW M5 CS" },
+    { id: 5, driver: "Sibusiso Makhoba", timeSlot: "00:30", car: "BMW M5 CS" },
     { id: 4, driver: "Tia Naidoo", timeSlot: "11:30", car: "BMW M5 CS" },
     { id: 3, driver: "Michael Bougardt", timeSlot: "13:00", car: "ToyotA Auris Xr" }
 
@@ -79,14 +80,13 @@ function isWithinTrackBorders(latitude, longitude) {
            (longitude >= minLng && longitude <= maxLng);
 }
 
-export const ValidateRaceSlot = (requestedSlot, ExistingBookings) => {
-	 if (!requestedSlot) {
+export const validateRaceSlot = (requestedSlot, existingBookings) => {
+    if (!requestedSlot) {
         throw new Error("Critical Parameter Missing: Invalid track query.");
     }
     const isConflict = existingBookings.includes(requestedSlot);
     return !isConflict; // Returns true if the track time slot is wide open and safe
 };
-
 
 module.exports = {
     processTrackBooking,

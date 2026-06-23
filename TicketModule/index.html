@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kaylami | BMW at Kyalami</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── AUTH SCREEN ─────────────────────────────────────── -->
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-card">
+
+      <div class="auth-logo">
+        <span class="auth-logo-icon">🏎</span>
+        <div>
+          <div class="auth-logo-text">Kaylami</div>
+          <div class="auth-logo-sub">BMW Race &amp; Training Events · Kyalami Circuit</div>
+        </div>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-auth="login">Sign In</button>
+        <button class="auth-tab" data-auth="register">Register</button>
+      </div>
+
+      <!-- Login -->
+      <form id="loginForm" class="auth-form" novalidate>
+        <div class="form-group">
+          <label for="loginEmail">Email address</label>
+          <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+        <div class="auth-error hidden" id="loginError"></div>
+        <button type="submit" class="btn-auth">Sign In</button>
+        <div class="auth-hint">
+          <strong>Demo accounts</strong><br />
+          🎟 buyer@demo.com &nbsp;/&nbsp; pass123<br />
+          📊 reseller@demo.com &nbsp;/&nbsp; pass123
+        </div>
+      </form>
+
+      <!-- Register -->
+      <form id="registerForm" class="auth-form hidden" novalidate>
+        <div class="form-group">
+          <label for="regName">Full name</label>
+          <input type="text" id="regName" placeholder="Your full name" autocomplete="name" />
+        </div>
+        <div class="form-group">
+          <label for="regEmail">Email address</label>
+          <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="regPassword">Password</label>
+          <input type="password" id="regPassword" placeholder="Min. 6 characters" autocomplete="new-password" />
+        </div>
+        <div class="form-group">
+          <label>I am a...</label>
+          <div class="role-selector">
+            <div class="role-card active" data-role="buyer">
+              <span class="role-icon">🎟</span>
+              <span class="role-name">Buyer</span>
+              <span class="role-desc">Browse &amp; purchase event tickets</span>
+            </div>
+            <div class="role-card" data-role="reseller">
+              <span class="role-icon">📊</span>
+              <span class="role-name">Reseller</span>
+              <span class="role-desc">List &amp; manage ticket inventory</span>
+            </div>
+          </div>
+        </div>
+        <div class="auth-error hidden" id="registerError"></div>
+        <button type="submit" class="btn-auth">Create Account</button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ── APP WRAPPER (shown after login) ────────────────── -->
+  <div id="appWrapper" class="hidden">
+
+    <header>
+      <div class="header-left">
+        <div class="logo">
+          <span class="logo-icon">🏎</span>
+          <span class="logo-text">Kaylami</span>
+          <span class="logo-tag">BMW at Kyalami</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="sync-status">
+          <span class="sync-dot" id="syncDot"></span>
+          <span id="syncText">Awaiting sync</span>
+        </div>
+        <button class="btn-sync" id="manualSync">⟳ Sync Now</button>
+        <div class="user-pill" id="userPill"></div>
+        <button class="btn-logout" id="logoutBtn">Sign Out</button>
+      </div>
+    </header>
+
+    <!-- Alert bar -->
+    <div id="alertBar" class="alert-bar hidden"></div>
+
+    <!-- Buyer Portal -->
+    <section id="buyerView" class="view">
+      <div class="container">
+        <div class="view-header">
+          <div>
+            <h2>BMW Race &amp; Training Events</h2>
+            <p class="view-subtitle">BMW race days and driver training sessions at Kyalami Circuit — inventory verified across all partner platforms in real-time.</p>
+          </div>
+        </div>
+        <div class="events-grid" id="eventsGrid"></div>
+      </div>
+    </section>
+
+    <!-- Reseller Dashboard -->
+    <section id="resellerView" class="view">
+      <div class="container">
+        <div class="view-header">
+          <div>
+            <h2>Reseller Dashboard</h2>
+            <p class="view-subtitle">BMW race and training events at Kyalami Circuit — manage your listings and monitor live inventory across all channels.</p>
+          </div>
+        </div>
+        <div class="dashboard-stats" id="dashboardStats"></div>
+        <div class="alert-feed" id="alertFeed"></div>
+        <div class="table-card">
+          <table class="events-table" id="eventsTable"></table>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ── PURCHASE MODAL ─────────────────────────────────── -->
+  <div class="modal-overlay hidden" id="modalOverlay"></div>
+  <div class="modal hidden" id="modal">
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose">✕</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
