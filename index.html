@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kyalami Grand Prix Circuit — Ticket Booking</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-group">
+        <div class="logo-mark">
+          <span class="logo-k">K</span>
+        </div>
+        <div class="logo-text">
+          <span class="logo-title">Kyalami Grand Prix Circuit</span>
+          <span class="logo-sub">Midrand, South Africa</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <span class="flag-strip"></span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">2026 Race Calendar</p>
+      <h1 class="hero-title">Book Your<br /><span class="accent">Race Day</span> Experience</h1>
+      <p class="hero-desc">Select an event, choose your seats, and secure your spot at Africa's premier motorsport venue.</p>
+      <a href="#booking" class="btn btn-primary hero-cta">View Race Calendar</a>
+    </div>
+    <div class="hero-stripe hero-stripe--1"></div>
+    <div class="hero-stripe hero-stripe--2"></div>
+    <div class="hero-stripe hero-stripe--3"></div>
+  </section>
+
+  <!-- BOOKING FLOW -->
+  <main id="booking" class="booking-section">
+
+    <!-- PROGRESS BAR -->
+    <div class="progress-bar-wrapper">
+      <div class="progress-bar">
+        <div class="progress-step active" data-step="1">
+          <div class="step-circle"><span>1</span></div>
+          <span class="step-label">Select Event</span>
+        </div>
+        <div class="progress-line"></div>
+        <div class="progress-step" data-step="2">
+          <div class="step-circle"><span>2</span></div>
+          <span class="step-label">Tickets</span>
+        </div>
+        <div class="progress-line"></div>
+        <div class="progress-step" data-step="3">
+          <div class="step-circle"><span>3</span></div>
+          <span class="step-label">Your Details</span>
+        </div>
+        <div class="progress-line"></div>
+        <div class="progress-step" data-step="4">
+          <div class="step-circle"><span>4</span></div>
+          <span class="step-label">Confirm</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 1: Race Day Selection -->
+    <div class="step-panel active" id="step-1">
+      <div class="step-header">
+        <h2>Choose Your Race Event</h2>
+        <p>Select from the 2026 Kyalami race calendar below.</p>
+      </div>
+      <div class="race-grid" id="race-grid"></div>
+      <div class="step-actions">
+        <button class="btn btn-primary" id="step1-next" disabled>Continue to Tickets</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Ticket Selection -->
+    <div class="step-panel" id="step-2">
+      <div class="step-header">
+        <h2>Select Your Tickets</h2>
+        <p>Choose your ticket category and quantity.</p>
+      </div>
+
+      <div class="selected-event-banner" id="selected-event-banner"></div>
+
+      <div class="ticket-grid" id="ticket-grid"></div>
+
+      <div class="quantity-row">
+        <label class="qty-label">Number of tickets</label>
+        <div class="qty-control">
+          <button class="qty-btn" id="qty-minus" aria-label="Decrease">&#8722;</button>
+          <span class="qty-value" id="qty-display">1</span>
+          <button class="qty-btn" id="qty-plus" aria-label="Increase">&#43;</button>
+        </div>
+        <span class="qty-max-hint">Max 10 per booking</span>
+      </div>
+
+      <div class="price-summary-row">
+        <span class="price-label">Subtotal</span>
+        <span class="price-value" id="subtotal-display">R 0</span>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn-secondary" id="step2-back">Back</button>
+        <button class="btn btn-primary" id="step2-next" disabled>Continue to Details</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Personal Details -->
+    <div class="step-panel" id="step-3">
+      <div class="step-header">
+        <h2>Your Details</h2>
+        <p>We'll use these details to issue your booking confirmation.</p>
+      </div>
+
+      <form id="details-form" novalidate>
+        <div class="form-row two-col">
+          <div class="form-group">
+            <label for="first-name">First Name <span class="required">*</span></label>
+            <input type="text" id="first-name" name="first-name" placeholder="e.g. Ayrton" autocomplete="given-name" required />
+            <span class="field-error" id="err-first-name"></span>
+          </div>
+          <div class="form-group">
+            <label for="last-name">Last Name <span class="required">*</span></label>
+            <input type="text" id="last-name" name="last-name" placeholder="e.g. Senna" autocomplete="family-name" required />
+            <span class="field-error" id="err-last-name"></span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">Email Address <span class="required">*</span></label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required />
+            <span class="field-error" id="err-email"></span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone">Phone Number <span class="required">*</span></label>
+            <input type="tel" id="phone" name="phone" placeholder="+27 82 000 0000" autocomplete="tel" required />
+            <span class="field-error" id="err-phone"></span>
+          </div>
+        </div>
+
+        <p class="privacy-note">Your details are used solely for this booking. We never share your information with third parties.</p>
+      </form>
+
+      <div class="step-actions">
+        <button class="btn btn-secondary" id="step3-back">Back</button>
+        <button class="btn btn-primary" id="step3-next">Review Booking</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Confirmation -->
+    <div class="step-panel" id="step-4">
+      <div class="step-header">
+        <h2>Review &amp; Confirm</h2>
+        <p>Please check your booking details before confirming.</p>
+      </div>
+
+      <div class="summary-card" id="summary-card"></div>
+
+      <div class="step-actions">
+        <button class="btn btn-secondary" id="step4-back">Back</button>
+        <button class="btn btn-primary btn-confirm" id="step4-confirm">Confirm Booking</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SUCCESS MODAL -->
+  <div class="modal-backdrop" id="success-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <div class="modal-icon">&#10003;</div>
+      <h2 id="modal-title">Booking Confirmed!</h2>
+      <p id="modal-ref"></p>
+      <p id="modal-message"></p>
+      <p class="modal-sub">A confirmation has been sent to <strong id="modal-email"></strong>.</p>
+      <button class="btn btn-primary" id="modal-close">Book Another Ticket</button>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2026 Kyalami Grand Prix Circuit. All rights reserved.</p>
+      <p class="footer-address">Kyalami Grand Prix Circuit, Allandale Rd, Midrand, 1685</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
