@@ -5,8 +5,10 @@
 
 // Simulated internal database array tracking existing track reservations
 const databaseRegistry = [
-    { id: 1, driver: "Engel Ranelani", timeSlot: "10:00", car: "BMW M4 Competition" },
-    { id: 2, driver: "Yongama Sobambela", timeSlot: "11:30", car: "BMW M5 CS" }
+    { id: 1, driver: "Thato Mohono", timeSlot: "10:00", car: "BMW M4 Competition" },
+    { id: 2, driver: "Yongama Sobambela", timeSlot: "11:30", car: "BMW M5 CS" },
+    { id: 3, driver: "Michael Bougardt", timeSlot: "13:00", car: "ToyotA Auris Xr" }
+
 ];
 
 /**
