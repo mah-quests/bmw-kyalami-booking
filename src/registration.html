@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMW Kyalami — Driver Registration</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy:   #0d1b2e;
+            --blue:   #1a4a9e;
+            --accent: #0099cc;
+            --white:  #ffffff;
+            --grey:   #8a9ab5;
+            --light:  #f0f4f8;
+            --error:  #c8192e;
+            --success:#107a3e;
+            --border: #d1d9e6;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--navy);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        /* ── Brand header ── */
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.75rem;
+        }
+        .brand-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--blue), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.1rem;
+            color: var(--white);
+            letter-spacing: -0.03em;
+            flex-shrink: 0;
+        }
+        .brand-text { color: var(--white); }
+        .brand-text h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.04em; }
+        .brand-text p  { font-size: 0.75rem; color: var(--grey); letter-spacing: 0.08em; text-transform: uppercase; }
+
+        /* ── Card ── */
+        .card {
+            background: var(--white);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 460px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+
+        /* ── Tab switcher ── */
+        .tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 2px solid var(--border);
+        }
+        .tab-btn {
+            padding: 1rem;
+            background: var(--light);
+            border: none;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--grey);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: var(--white);
+            color: var(--blue);
+            border-bottom: 3px solid var(--blue);
+            margin-bottom: -2px;
+        }
+        .tab-btn:hover:not(.active) { background: #e8edf3; }
+
+        /* ── Form panels ── */
+        .panel { display: none; padding: 1.75rem; }
+        .panel.visible { display: block; }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 0.3rem;
+        }
+        .panel-sub {
+            font-size: 0.82rem;
+            color: var(--grey);
+            margin-bottom: 1.5rem;
+        }
+
+        /* ── Form fields ── */
+        .field-group { display: flex; flex-direction: column; gap: 1rem; }
+        .field { display: flex; flex-direction: column; gap: 0.35rem; }
+        .field label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #3a4a5e;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .field input {
+            padding: 0.72rem 0.9rem;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.92rem;
+            color: var(--navy);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fafbfd;
+        }
+        .field input:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(26,74,158,0.12);
+            background: var(--white);
+        }
+        .field input.invalid {
+            border-color: var(--error);
+            box-shadow: 0 0 0 3px rgba(200,25,46,0.1);
+        }
+        .field input.valid {
+            border-color: var(--success);
+        }
+
+        /* ── Field error message ── */
+        .field-error {
+            font-size: 0.76rem;
+            color: var(--error);
+            display: none;
+            gap: 0.25rem;
+            align-items: center;
+        }
+        .field-error.show { display: flex; }
+
+        /* ── Password strength bar ── */
+        .strength-wrap { display: none; flex-direction: column; gap: 0.35rem; }
+        .strength-wrap.show { display: flex; }
+        .strength-bar {
+            height: 4px;
+            border-radius: 4px;
+            background: var(--border);
+            overflow: hidden;
+        }
+        .strength-fill {
+            height: 100%;
+            border-radius: 4px;
+            width: 0;
+            transition: width 0.3s, background 0.3s;
+        }
+        .strength-label { font-size: 0.74rem; color: var(--grey); }
+
+        /* ── Two-column row ── */
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        /* ── Submit button ── */
+        .btn-submit {
+            width: 100%;
+            padding: 0.85rem;
+            background: linear-gradient(135deg, var(--blue), var(--accent));
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn-submit:hover  { opacity: 0.92; }
+        .btn-submit:active { transform: scale(0.99); }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* ── Global form error banner ── */
+        .form-banner {
+            display: none;
+            padding: 0.65rem 0.9rem;
+            border-radius: 7px;
+            font-size: 0.83rem;
+            font-weight: 500;
+            margin-top: 0.75rem;
+        }
+        .form-banner.error  { background: #fde8ea; color: var(--error); display: flex; gap: 0.4rem; align-items: center; }
+        .form-banner.success{ background: #e2f6ec; color: var(--success); display: flex; gap: 0.4rem; align-items: center; }
+
+        /* ── Success screen ── */
+        .success-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 2.5rem 1.75rem;
+            gap: 1rem;
+        }
+        .success-screen.show { display: flex; }
+        .success-icon {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--success), #1aad5a);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; color: white;
+        }
+        .success-screen h2 { font-size: 1.3rem; color: var(--navy); }
+        .success-screen p  { font-size: 0.88rem; color: var(--grey); line-height: 1.5; }
+        .qr-placeholder {
+            width: 120px; height: 120px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; color: var(--grey); text-align: center;
+            line-height: 1.4;
+            background: var(--light);
+        }
+        .mpass-badge {
+            background: var(--navy);
+            color: var(--accent);
+            font-family: monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 0.4rem 0.9rem;
+            border-radius: 6px;
+            letter-spacing: 0.08em;
+        }
+        .btn-reset {
+            background: none;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            padding: 0.6rem 1.5rem;
+            font-size: 0.85rem;
+            color: var(--grey);
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .btn-reset:hover { border-color: var(--blue); color: var(--blue); }
+
+        /* ── Footer ── */
+        footer {
+            margin-top: 1.25rem;
+            font-size: 0.74rem;
+            color: rgba(255,255,255,0.35);
+            text-align: center;
+            letter-spacing: 0.03em;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 480px) {
+            .field-row { grid-template-columns: 1fr; }
+            .panel { padding: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Brand -->
+    <div class="brand">
+        <div class="brand-logo">BMW</div>
+        <div class="brand-text">
+            <h1>Kyalami Track Platform</h1>
+            <p>Driver Portal</p>
+        </div>
+    </div>
+
+    <!-- Card -->
+    <div class="card">
+
+        <!-- Tab switcher -->
+        <div class="tabs">
+            <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Login</button>
+            <button class="tab-btn"        id="tab-register" onclick="switchTab('register')">Register</button>
+        </div>
+
+        <!-- ═══════ LOGIN PANEL ═══════ -->
+        <div class="panel visible" id="panel-login">
+            <h2 class="panel-title">Welcome back</h2>
+            <p class="panel-sub">Sign in to access your M-Pass and upcoming events.</p>
+
+            <form id="form-login" onsubmit="handleLogin(event)" novalidate>
+                <div class="field-group">
+
+                    <div class="field">
+                        <label for="login-email">Email Address</label>
+                        <input type="email" id="login-email" placeholder="driver@example.com" autocomplete="email">
+                        <span class="field-error" id="err-login-email">Please enter a valid email address.</span>
+                    </div>
+
+                    <div class="field">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" placeholder="Your password" autocomplete="current-password">
+                        <span class="field-error" id="err-login-password">Password is required.</span>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="btn-login">Sign In</button>
+
+                    <div class="form-banner" id="banner-login"></div>
+                </div>
+            </form>
+        </div>
+
+        <!-- ═══════ REGISTER PANEL ═══════ -->
+        <div class="panel" id="panel-register">
+            <h2 class="panel-title">Create your account</h2>
+            <p class="panel-sub">Register to book track days and receive your M-Pass QR.</p>
+
+            <!-- Success screen (shown post-registration) -->
+            <div class="success-screen" id="success-screen">
+                <div class="success-icon">✓</div>
+                <h2>Registration Successful!</h2>
+                <p>Your M-Pass has been generated. Present this QR at the pit-lane gate on race day.</p>
+                <div class="qr-placeholder" id="qr-display">M-PASS<br>QR Code<br>Loading...</div>
+                <span class="mpass-badge" id="mpass-id">KYM-????-X</span>
+                <button class="btn-reset" onclick="resetRegistration()">Register Another Driver</button>
+            </div>
+
+            <form id="form-register" onsubmit="handleRegister(event)" novalidate>
+                <div class="field-group">
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="reg-first">First Name</label>
+                            <input type="text" id="reg-first" placeholder="Thato" autocomplete="given-name">
+                            <span class="field-error" id="err-reg-first">First name is required.</span>
+                        </div>
+                        <div class="field">
+                            <label for="reg-last">Last Name</label>
+                            <input type="text" id="reg-last" placeholder="Mohono" autocomplete="family-name">
+                            <span class="field-error" id="err-reg-last">Last name is required.</span>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="reg-email">Email Address</label>
+                        <input type="email" id="reg-email" placeholder="driver@example.com" autocomplete="email">
+                        <span class="field-error" id="err-reg-email">Please enter a valid email address.</span>
+                    </div>
+
+                    <div class="field">
+                        <label for="reg-phone">Phone Number</label>
+                        <input type="tel" id="reg-phone" placeholder="+27 82 000 0000" autocomplete="tel">
+                        <span class="field-error" id="err-reg-phone">Phone number is required.</span>
+                    </div>
+
+                    <div class="field">
+                        <label for="reg-licence">Driver Licence Number</label>
+                        <input type="text" id="reg-licence" placeholder="e.g. GPM123456" autocomplete="off">
+                        <span class="field-error" id="err-reg-licence">Licence number is required.</span>
+                    </div>
+
+                    <div class="field">
+                        <label for="reg-password">Password</label>
+                        <input
+                            type="password"
+                            id="reg-password"
+                            placeholder="Create a strong password"
+                            autocomplete="new-password"
+                            oninput="onPasswordInput(this.value)"
+                        >
+                        <div class="strength-wrap" id="strength-wrap">
+                            <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+                            <span class="strength-label" id="strength-label">Strength: —</span>
+                        </div>
+                        <span class="field-error" id="err-reg-password">Password must be at least 8 characters with a number and uppercase letter.</span>
+                    </div>
+
+                    <div class="field">
+                        <label for="reg-confirm">Confirm Password</label>
+                        <input type="password" id="reg-confirm" placeholder="Repeat your password" autocomplete="new-password">
+                        <span class="field-error" id="err-reg-confirm">Passwords do not match.</span>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="btn-register">Create Account</button>
+
+                    <div class="form-banner" id="banner-register"></div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <footer>BMW Kyalami Racetrack Platform &nbsp;·&nbsp; Derivco Graduate Programme 2026</footer>
+
+    <script>
+        // ─────────────────────────────────────────────────────────
+        //  TAB SWITCHER
+        // ─────────────────────────────────────────────────────────
+        function switchTab(tab) {
+            document.getElementById('panel-login').classList.toggle('visible', tab === 'login');
+            document.getElementById('panel-register').classList.toggle('visible', tab === 'register');
+            document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+            document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+        }
+
+        // ─────────────────────────────────────────────────────────
+        //  SHARED HELPERS
+        // ─────────────────────────────────────────────────────────
+        function showFieldError(fieldId, errorId, show) {
+            const input = document.getElementById(fieldId);
+            const error = document.getElementById(errorId);
+            input.classList.toggle('invalid', show);
+            error.classList.toggle('show', show);
+        }
+
+        function showBanner(bannerId, message, type) {
+            const banner = document.getElementById(bannerId);
+            banner.textContent = message;
+            banner.className = 'form-banner ' + type;
+        }
+
+        function clearBanner(bannerId) {
+            const banner = document.getElementById(bannerId);
+            banner.className = 'form-banner';
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // Simulated driver store (localStorage) — replaces a real API in this sandbox.
+        function getDriverStore() {
+            return JSON.parse(localStorage.getItem('kyalami_drivers') || '[]');
+        }
+
+        function saveDriver(driver) {
+            const store = getDriverStore();
+            store.push(driver);
+            localStorage.setItem('kyalami_drivers', JSON.stringify(store));
+        }
+
+        function generateMpassId() {
+            const suffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+            const num    = Math.floor(1000 + Math.random() * 9000);
+            return 'KYM-' + num + '-' + suffix;
+        }
+
+        // ─────────────────────────────────────────────────────────
+        //  PASSWORD STRENGTH INDICATOR
+        // ─────────────────────────────────────────────────────────
+        function onPasswordInput(value) {
+            const wrap  = document.getElementById('strength-wrap');
+            const fill  = document.getElementById('strength-fill');
+            const label = document.getElementById('strength-label');
+
+            if (!value) {
+                wrap.classList.remove('show');
+                return;
+            }
+            wrap.classList.add('show');
+
+            const score = measurePasswordStrength(value);
+
+            const levels = [
+                { pct: '20%', color: '#c8192e', text: 'Weak' },
+                { pct: '45%', color: '#e07b00', text: 'Fair' },
+                { pct: '70%', color: '#0070c0', text: 'Good' },
+                { pct: '100%',color: '#107a3e', text: 'Strong' },
+            ];
+            const level = levels[Math.min(score, 3)];
+            fill.style.width      = level.pct;
+            fill.style.background = level.color;
+            label.textContent     = 'Strength: ' + level.text;
+        }
+
+        // ─────────────────────────────────────────────────────────
+        //  PASSWORD VALIDATION — TODO(human)
+        //
+        //  Implement two functions below:
+        //
+        //  1. measurePasswordStrength(password)
+        //     Returns a score: 0 = weak, 1 = fair, 2 = good, 3 = strong
+        //     Hints: check length, uppercase letters, numbers, special chars.
+        //     Each criterion you check can add 1 to the score.
+        //
+        //  2. isStrongEnough(password)
+        //     Returns true/false.
+        //     Minimum rule: at least 8 characters, one uppercase, one number.
+        // ─────────────────────────────────────────────────────────
+        function measurePasswordStrength(password) {
+            // TODO(human): implement this function
+            // Return a number 0–3 based on how many of these criteria pass:
+            //   • length >= 8
+            //   • contains an uppercase letter
+            //   • contains a number
+            //   • contains a special character (!@#$%^&*)
+        }
+
+        function isStrongEnough(password) {
+            // TODO(human): implement this function
+            // Return true only if password is at least 8 chars,
+            // has at least one uppercase letter, and at least one number.
+        }
+
+        // ─────────────────────────────────────────────────────────
+        //  LOGIN HANDLER
+        // ─────────────────────────────────────────────────────────
+        function handleLogin(event) {
+            event.preventDefault();
+            clearBanner('banner-login');
+
+            const email    = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            let valid = true;
+
+            if (!isValidEmail(email)) {
+                showFieldError('login-email', 'err-login-email', true);
+                valid = false;
+            } else {
+                showFieldError('login-email', 'err-login-email', false);
+            }
+
+            if (!password) {
+                showFieldError('login-password', 'err-login-password', true);
+                valid = false;
+            } else {
+                showFieldError('login-password', 'err-login-password', false);
+            }
+
+            if (!valid) return;
+
+            const store  = getDriverStore();
+            const driver = store.find(d => d.email === email && d.password === password);
+
+            if (!driver) {
+                showBanner('banner-login', '✕  Invalid email or password. Please try again.', 'error');
+                return;
+            }
+
+            showBanner('banner-login', '✓  Welcome back, ' + driver.firstName + '! Redirecting...', 'success');
+            document.getElementById('btn-login').disabled = true;
+        }
+
+        // ─────────────────────────────────────────────────────────
+        //  REGISTRATION HANDLER
+        // ─────────────────────────────────────────────────────────
+        function validateRegistrationForm() {
+            const fields = {
+                first:    document.getElementById('reg-first').value.trim(),
+                last:     document.getElementById('reg-last').value.trim(),
+                email:    document.getElementById('reg-email').value.trim(),
+                phone:    document.getElementById('reg-phone').value.trim(),
+                licence:  document.getElementById('reg-licence').value.trim(),
+                password: document.getElementById('reg-password').value,
+                confirm:  document.getElementById('reg-confirm').value,
+            };
+
+            let valid = true;
+
+            showFieldError('reg-first',    'err-reg-first',    !fields.first);
+            if (!fields.first) valid = false;
+
+            showFieldError('reg-last',     'err-reg-last',     !fields.last);
+            if (!fields.last) valid = false;
+
+            showFieldError('reg-email',    'err-reg-email',    !isValidEmail(fields.email));
+            if (!isValidEmail(fields.email)) valid = false;
+
+            showFieldError('reg-phone',    'err-reg-phone',    !fields.phone);
+            if (!fields.phone) valid = false;
+
+            showFieldError('reg-licence',  'err-reg-licence',  !fields.licence);
+            if (!fields.licence) valid = false;
+
+            const passwordOk = isStrongEnough(fields.password);
+            showFieldError('reg-password', 'err-reg-password', !passwordOk);
+            if (!passwordOk) valid = false;
+
+            const confirmOk = fields.password === fields.confirm && fields.confirm.length > 0;
+            showFieldError('reg-confirm',  'err-reg-confirm',  !confirmOk);
+            if (!confirmOk) valid = false;
+
+            return valid ? fields : null;
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            clearBanner('banner-register');
+
+            const fields = validateRegistrationForm();
+            if (!fields) return;
+
+            const store = getDriverStore();
+            if (store.some(d => d.email === fields.email)) {
+                showBanner('banner-register', '✕  An account with this email already exists. Please log in.', 'error');
+                return;
+            }
+
+            const mpassId = generateMpassId();
+            const driver = {
+                id:        mpassId,
+                firstName: fields.first,
+                lastName:  fields.last,
+                email:     fields.email,
+                phone:     fields.phone,
+                licence:   fields.licence,
+                password:  fields.password,   // NOTE: In production, passwords are NEVER stored in plain text.
+                mpassId:   mpassId,
+                createdAt: new Date().toISOString(),
+            };
+            saveDriver(driver);
+
+            document.getElementById('form-register').style.display = 'none';
+            document.getElementById('mpass-id').textContent = mpassId;
+            document.getElementById('qr-display').textContent = 'QR: ' + mpassId;
+            document.getElementById('success-screen').classList.add('show');
+        }
+
+        function resetRegistration() {
+            document.getElementById('form-register').style.display = '';
+            document.getElementById('success-screen').classList.remove('show');
+            document.getElementById('form-register').reset();
+            document.getElementById('strength-wrap').classList.remove('show');
+        }
+    </script>
+</body>
+</html>
